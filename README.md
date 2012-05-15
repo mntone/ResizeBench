@@ -1,5 +1,4 @@
-ResizeBench
-===========
+#ResizeBench
 
 リサイズに関するベンチをとるとともに、高速化を実現していきます。
 
@@ -12,5 +11,5 @@ ResizeBench
 ちなみにこのコードに関してですが、VS 2010 で開発動作することを念頭にしています。今後イントリンシック命令 SIMD を利用したプログラムも書いていく予定となっております。
 
 ##Problem
-* Multimedia Timer のせいか x86-64 built では動作しません。
-* Bilinear Filter は正常に作動しません。 (どこがおかしいのだろう…?)
+- Bilinear Filter は正常に作動しません。 (どこがおかしいのだろう…?)
+- (解決済み) Multimedia Timer のせいか x86-64 built では動作しません。

@@ -28,7 +28,11 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 void SetTimer( HWND hWnd );
 HRESULT ClearTimer( void );
+#if X86-64
+void CALLBACK TimerProc( UINT uId, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2 );
+#else
 void CALLBACK TimerProc( UINT uId, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2 );
+#endif
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
@@ -246,7 +250,14 @@ HRESULT ClearTimer( void )
 	return timeEndPeriod( tc.wPeriodMin );
 }
 
+#if X86-64
+void CALLBACK TimerProc( UINT uId, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2 )
+{
+	count++;
+}
+#else
 void CALLBACK TimerProc( UINT uId, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2 )
 {
 	count++;
 }
+#endif
