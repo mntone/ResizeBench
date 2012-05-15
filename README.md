@@ -10,6 +10,13 @@
 
 ちなみにこのコードに関してですが、VS 2010 で開発動作することを念頭にしています。今後イントリンシック命令 SIMD を利用したプログラムも書いていく予定となっております。
 
+##To Do
+- Nearest Neighbor Filter, Bilinear Filter の最適化
+- Bilinear の SIMD 命令化。(over SSE3/over AVX) → AVX は整数演算? (注) SSE3＝Pen4。SSE3 以上で実装すれば基本動作する。
+- Bicubic Filter の作成
+- 上下、左右、90°回転の実装
+- 色反転、明るさ調節、ぼかし、モザイクの実装
+
 ##Problem
-- Bilinear Filter は正常に作動しません。 (どこがおかしいのだろう…?)
+- (解決済み) Bilinear Filter は正常に作動しません。 (どこがおかしいのだろう…?)
 - (解決済み) Multimedia Timer のせいか x86-64 built では動作しません。

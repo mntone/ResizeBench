@@ -85,35 +85,37 @@ LPBYTE *Rgb24Image::GetPixel( void )
 //        (e.g.) double hprop = scaleh * h; y(double) += hprop; y0 = ( int )( y + 0.5 );
 void Rgb24Image::NearestNeighbor1( Rgb24Image *src )
 {
-	LPBYTE *sp = src->GetPixel();	// src の LPBYTE のポインタ
-	int sw = src->GetWidth();		// src の横幅
-	int sl = 3 * sw;				// src の 1 列のビット長
-	int dl = 3 * width;				// dst の 1 列のビット長
+	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
+	int sw = src->GetWidth();			// src の幅
+	int sl = 3 * sw;					// src の 1 列のビット長
+	int sh = src->GetHeight();			// src の高さ
+	int dl = 3 * width;					// dst の 1 列のビット長
 
 	double scalew = ( double )sw / width / 3.0;				// 拡大倍率 (1/3 倍)
 	double scaleh = ( double )src->GetHeight() / height;		// 拡大倍率
 
-	int w, h, hxdl, pl, x0, y0;		// ループ中で確保する一時変数
+	int w, h, hxdl, y0xsl, pl, x0, y0;	// ループ中で確保する一時変数
 	for( h = 0; h < height; ++h )
-	{
-		hxdl = h * dl;				// (高さ) × (1 列のビット長)
-		
+	{		
 		// src の基準点 (x0, y0) の y0 を求める
 		y0 = ( int )( scaleh * h + 0.5 );
 
-		for( w = 0; w < 3 * width; w += 3 )
+		hxdl = h * dl;					// (高さ) × (1 列のビット長)
+		y0xsl = y0 * sl;
+
+		for( w = 0; w < dl; w += 3 )
 		{
 			// src の基準点 (x0, y0) の x0 を求める
 			x0 = ( int )( scalew * w + 0.5 );
 
 			// src の範囲外の点を範囲内に引き戻す
-			if( x0 < 0 ) x0 = 0;
-			else if( x0 > src->GetWidth() - 1 ) x0 = src->GetWidth() - 1;
-			if( y0 < 0 ) y0 = 0;
-			else if( y0 > src->GetHeight() - 1 ) y0 = src->GetHeight() - 1;
+			if( x0 >= sw )
+				x0 = sw - 1;
+			if( y0 >= sh )
+				y0 = sh - 1;
 
 			// src の基準点までのビット長算出
-			pl = y0 * sl + 3 * x0;
+			pl = y0xsl + 3 * x0;
 
 			// src の基準点 (x0, y0) を dst の点 (w, h) にコピー
 			lpPixel[hxdl + w    ] = ( *sp )[pl    ];
@@ -129,8 +131,9 @@ void Rgb24Image::Bilinear1( Rgb24Image *src )
 	BYTE colorbuf[4];
 
 	LPBYTE *sp = src->GetPixel();
-	int sw = src->GetWidth();
+	int sw = src->GetWidth();			// src の幅
 	int sl = 3 * sw;
+	int sh = src->GetHeight();			// src の高さ
 	int dl = 3 * width;
 
 	double scalew = ( double )sw / width;
@@ -141,15 +144,16 @@ void Rgb24Image::Bilinear1( Rgb24Image *src )
 		{
 			double x = scalew * w;
 			double y = scaleh * h;
-			int x0 = ( int )( x + 0.5 );
-			int y0 = ( int )( y + 0.5 );
+			int x0 = ( int )x;
+			int y0 = ( int )y;
+
+			if( x0 > sw - 2 )
+				x0 = sw - 2;
+			if( y0 > sh - 2 )
+				y0 = sh - 2;
+
 			x -= x0;
 			y -= y0;
-
-			if( x0 < 0 ) x0 = 0;
-			else if( x0 > src->GetWidth() - 2 ) x0 = src->GetWidth() - 2;
-			if( y0 < 0 ) y0 = 0;
-			else if( y0 > src->GetHeight() - 2 ) y0 = src->GetHeight() - 2;
        
             for( int i = 0; i < 3; ++i )
 			{
@@ -158,7 +162,8 @@ void Rgb24Image::Bilinear1( Rgb24Image *src )
 				colorbuf[2] = ( *sp )[( y0 + 1 ) * sl + 3 * ( x0     ) + i];
 				colorbuf[3] = ( *sp )[( y0 + 1 ) * sl + 3 * ( x0 + 1 ) + i];
                                 
-				lpPixel[h * dl + 3 * w + i] = ( int )( ( 1.0 - x ) * ( 1.0 - y ) * colorbuf[0] + ( 1.0 - x ) * y * colorbuf[1] + x * ( 1.0 - y ) * colorbuf[2] + x * y * colorbuf[3] + 0.5 );
+				lpPixel[h * dl + 3 * w + i] = ( BYTE )( ( 1.0 - x ) * ( 1.0 - y ) * colorbuf[0]	+ x * ( 1.0 - y ) * colorbuf[1]
+					+ ( 1.0 - x ) * y * colorbuf[2] + x * y * colorbuf[3] + 0.5 );
             }		
 		}
 }

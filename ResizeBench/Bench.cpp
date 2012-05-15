@@ -25,7 +25,8 @@ void Bench::Test( void )
 	BitBlt( i1->GetImageDC(), 0, 0, 640, 480, deskhdc, 0, 0, SRCCOPY );
 	ReleaseDC( 0, deskhdc );
 
-	i2->NearestNeighbor1( i1 );
+	for( int i = 0; i < 1024; ++i )
+		i2->Bilinear1( i1 );
 
 	BitBlt( hdc, 0, 0, 480, 360, i2->GetImageDC(), 0, 0, SRCCOPY );
 	

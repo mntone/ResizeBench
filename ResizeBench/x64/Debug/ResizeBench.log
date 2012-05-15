@@ -1,21 +1,34 @@
-﻿2012/05/14 16:33:34 にビルドを開始しました。
-     1>ノード 2 上のプロジェクト "c:\Users\owner\documents\visual studio 2010\Projects\ResizeBench\ResizeBench\ResizeBench.vcxproj" (build ターゲット)。
+﻿2012/05/16 8:28:27 にビルドを開始しました。
+     1>ノード 2 上のプロジェクト "C:\Users\owner\Documents\Visual Studio 2010\Projects\ResizeBench\ResizeBench\ResizeBench.vcxproj" (build ターゲット)。
      1>InitializeBuildStatus:
-         "x64\Debug\ResizeBench.unsuccessfulbuild" のタッチ タスクを実行しています。
+         "AlwaysCreate" が指定されたため "x64\Debug\ResizeBench.unsuccessfulbuild" を作成しています。
        ClCompile:
          すべての出力が最新のものです。
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"x64\Debug\ResizeBench.pch" /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TP /errorReport:prompt Bench.cpp ResizeBench.cpp
-         ResizeBench.cpp
-     1>c:\users\owner\documents\visual studio 2010\projects\resizebench\resizebench\resource.h(16): warning C4005: 'ID_BENCH_BEGIN' : マクロが再定義されました。
-                 c:\users\owner\documents\visual studio 2010\projects\resizebench\resizebench\resource.h(15) : 'ID_BENCH_BEGIN' の前の定義を確認してください
-     1>ResizeBench.cpp(170): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
-                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\swprintf.inl(85) : 'swprintf' の宣言を確認してください。
-     1>ResizeBench.cpp(234): error C2664: 'timeSetEvent' : 3 番目の引数を 'void (__cdecl *)(UINT,UINT,DWORD,DWORD,DWORD)' から 'LPTIMECALLBACK' に変換できません。(新しい機能 ; ヘルプを参照)
-                 スコープ内でこの名前を指定された関数でターゲット型に一致するものはありません。
-         Bench.cpp
-         Generating Code...
-     1>プロジェクト "c:\Users\owner\documents\visual studio 2010\Projects\ResizeBench\ResizeBench\ResizeBench.vcxproj" (build ターゲット) のビルドが終了しました -- 失敗。
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /Od /D WIN32 /D "X86-64" /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"x64\Debug\ResizeBench.pch" /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TP /errorReport:prompt Rgb24Image.cpp
+         Rgb24Image.cpp
+       ResourceCompile:
+         すべての出力が最新のものです。
+       ManifestResourceCompile:
+         すべての出力が最新のものです。
+       Link:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\owner\Documents\Visual Studio 2010\Projects\ResizeBench\x64\Debug\ResizeBench.exe" /INCREMENTAL /NOLOGO winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"x64\Debug\ResizeBench.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\owner\Documents\Visual Studio 2010\Projects\ResizeBench\x64\Debug\ResizeBench.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\owner\Documents\Visual Studio 2010\Projects\ResizeBench\x64\Debug\ResizeBench.lib" /MACHINE:X64 x64\Debug\ResizeBench.res
+         x64\Debug\ResizeBench.exe.embed.manifest.res
+         x64\Debug\Bench.obj
+         x64\Debug\ResizeBench.obj
+         x64\Debug\Rgb24Image.obj
+         x64\Debug\stdafx.obj
+         ResizeBench.vcxproj -> C:\Users\owner\Documents\Visual Studio 2010\Projects\ResizeBench\x64\Debug\ResizeBench.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"x64\Debug\ResizeBench.exe.embed.manifest" /manifest x64\Debug\ResizeBench.exe.intermediate.manifest
+         すべての出力が最新のものです。
+       LinkEmbedManifest:
+         すべての出力が最新のものです。
+         ResizeBench.vcxproj -> C:\Users\owner\Documents\Visual Studio 2010\Projects\ResizeBench\x64\Debug\ResizeBench.exe
+       FinalizeBuildStatus:
+         ファイル "x64\Debug\ResizeBench.unsuccessfulbuild" を削除しています。
+         "x64\Debug\ResizeBench.lastbuildstate" のタッチ タスクを実行しています。
+     1>プロジェクト "C:\Users\owner\Documents\Visual Studio 2010\Projects\ResizeBench\ResizeBench\ResizeBench.vcxproj" (build ターゲット) のビルドが完了しました。
 
-ビルドに失敗しました。
+ビルドに成功しました。
 
-経過時間 00:00:00.43
+経過時間 00:00:00.82
