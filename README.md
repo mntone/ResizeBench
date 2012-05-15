@@ -12,5 +12,5 @@ ResizeBench
 ちなみにこのコードに関してですが、VS 2010 で開発動作することを念頭にしています。今後イントリンシック命令 SIMD を利用したプログラムも書いていく予定となっております。
 
 ##Problem
-*Multimedia Timer のせいか x86-64 built では動作しません。
-*Bilinear Filter は正常に作動しません。 (どこがおかしいのだろう…?)
+* Multimedia Timer のせいか x86-64 built では動作しません。
+* Bilinear Filter は正常に作動しません。 (どこがおかしいのだろう…?)
