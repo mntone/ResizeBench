@@ -10,6 +10,11 @@
 
 ちなみにこのコードに関してですが、VS 2010 で開発動作することを念頭にしています。今後イントリンシック命令 SIMD を利用したプログラムも書いていく予定となっております。
 
+##Rule
+- タブをしよう。タブはスペース 4 つ分相当。
+- shared_ptr 使えるところは使っていこう。
+- x86, x64 両方動作するようなコードに。
+
 ##To Do
 - Nearest Neighbor Filter, Bilinear Filter の最適化
 - Bilinear の SIMD 命令化。(over SSE3/over AVX) → AVX は整数演算? (注) SSE3＝Pen4。SSE3 以上で実装すれば基本動作する。
@@ -18,5 +23,6 @@
 - 色反転、明るさ調節、ぼかし、モザイクの実装
 
 ##Problem
+- [NEW] アプリケーションが修了しない不具合。 (shared_ptr 化の影響？)
 - (解決済み) Bilinear Filter は正常に作動しません。 (どこがおかしいのだろう…?)
 - (解決済み) Multimedia Timer のせいか x86-64 built では動作しません。

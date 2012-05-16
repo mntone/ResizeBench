@@ -7,7 +7,7 @@ Rgb24Image::Rgb24Image( HWND _hWnd, int _width, int _height ):
 	height( _height ),
 	lpPixel( NULL )
 {
-	// DIB の情報を容易
+	// DIB の情報を用意
 	bmpi = new BITMAPINFO();
 	bmpi->bmiHeader.biSize = sizeof( BITMAPINFOHEADER );
 	bmpi->bmiHeader.biWidth = width;
@@ -91,14 +91,18 @@ void Rgb24Image::NearestNeighbor1( Rgb24Image *src )
 	int sh = src->GetHeight();			// src の高さ
 	int dl = 3 * width;					// dst の 1 列のビット長
 
-	double scalew = ( double )sw / width / 3.0;				// 拡大倍率 (1/3 倍)
-	double scaleh = ( double )src->GetHeight() / height;		// 拡大倍率
+	double scalew = ( double )sw / width / 3.0;		// 拡大倍率 (1/3 倍)
+	double scaleh = ( double )sh / height;			// 拡大倍率
 
 	int w, h, hxdl, y0xsl, pl, x0, y0;	// ループ中で確保する一時変数
 	for( h = 0; h < height; ++h )
 	{		
 		// src の基準点 (x0, y0) の y0 を求める
 		y0 = ( int )( scaleh * h + 0.5 );
+
+		// src 上の点 y0 を範囲外の点を範囲内に引き戻す
+		if( y0 >= sh )
+			y0 = sh - 1;
 
 		hxdl = h * dl;					// (高さ) × (1 列のビット長)
 		y0xsl = y0 * sl;
@@ -107,12 +111,10 @@ void Rgb24Image::NearestNeighbor1( Rgb24Image *src )
 		{
 			// src の基準点 (x0, y0) の x0 を求める
 			x0 = ( int )( scalew * w + 0.5 );
-
-			// src の範囲外の点を範囲内に引き戻す
+			
+			// src 上の点 x0 を範囲外の点を範囲内に引き戻す
 			if( x0 >= sw )
 				x0 = sw - 1;
-			if( y0 >= sh )
-				y0 = sh - 1;
 
 			// src の基準点までのビット長算出
 			pl = y0xsl + 3 * x0;
@@ -125,36 +127,53 @@ void Rgb24Image::NearestNeighbor1( Rgb24Image *src )
 	}
 }
 
-// テスト段階。まだ動きません。バグるｗ
+// Bilinear (素コード、準最適化)
 void Rgb24Image::Bilinear1( Rgb24Image *src )
 {
-	BYTE colorbuf[4];
-
-	LPBYTE *sp = src->GetPixel();
+	BYTE colorbuf[4];					// カラーバッファ
+	
+	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
 	int sw = src->GetWidth();			// src の幅
-	int sl = 3 * sw;
+	int sl = 3 * sw;					// src の 1 列のビット長
 	int sh = src->GetHeight();			// src の高さ
-	int dl = 3 * width;
+	int dl = 3 * width;					// dst の 1 列のビット長
 
 	double scalew = ( double )sw / width;
-	double scaleh = ( double )src->GetHeight() / height;
+	double scaleh = ( double )sh / height;
 
+	int x0, y0;
+	double x, y;
 	for( int h = 0; h < height; ++h )
+	{
+		// src の基準場所 (x, y) の y を求める
+		y = scaleh * h;
+
+		// src の基準点 (x0, y0) の y0 を求める
+		y0 = ( int )y;
+
+		// src 上の点 y0 を範囲外の点を範囲内に引き戻す
+		if( y0 > sh - 2 )
+			y0 = sh - 2;
+
+		// src の基準点からの基準場所 (Δx, Δy) の Δy を求める
+		y -= y0;
+
 		for( int w = 0; w < width; ++w )
 		{
-			double x = scalew * w;
-			double y = scaleh * h;
-			int x0 = ( int )x;
-			int y0 = ( int )y;
+			// src の基準場所 (x, y) の x を求める
+			x = scalew * w;
 
+			// src の基準点 (x0, y0) の x0 を求める
+			x0 = ( int )x;
+
+			// src 上の点 x0 を範囲外の点を範囲内に引き戻す
 			if( x0 > sw - 2 )
 				x0 = sw - 2;
-			if( y0 > sh - 2 )
-				y0 = sh - 2;
-
+			
+			// src の基準点からの基準場所 (Δx, Δy) の Δx を求める
 			x -= x0;
-			y -= y0;
-       
+
+			// TODO: propTL, propTR, propBL, propBR 変数で保存しておく
             for( int i = 0; i < 3; ++i )
 			{
 				colorbuf[0] = ( *sp )[( y0     ) * sl + 3 * ( x0     ) + i];
@@ -164,6 +183,7 @@ void Rgb24Image::Bilinear1( Rgb24Image *src )
                                 
 				lpPixel[h * dl + 3 * w + i] = ( BYTE )( ( 1.0 - x ) * ( 1.0 - y ) * colorbuf[0]	+ x * ( 1.0 - y ) * colorbuf[1]
 					+ ( 1.0 - x ) * y * colorbuf[2] + x * y * colorbuf[3] + 0.5 );
-            }		
+			}		
 		}
+	}
 }

@@ -17,6 +17,9 @@
 #include <memory.h>
 #include <tchar.h>
 
+// C++
+#include <memory>
+
 // TODO: プログラムに必要な追加ヘッダーをここで参照してください。
 
 #include <MMSystem.h>
