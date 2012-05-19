@@ -16,7 +16,7 @@
 - x86, x64 両方動作するようなコードに。
 
 ##To Do
-- Nearest Neighbor Filter, Bilinear Filter の最適化
+- Nearest Neighbor Filter, Bilinear Filter, Bicubic の最適化
 - Bilinear の SIMD 命令化。(over SSE3/over AVX) → AVX は整数演算? (注) SSE3＝Pen4。SSE3 以上で実装すれば基本動作する。
 - 上下、左右、90°回転の実装
 - 色反転、明るさ調節、ぼかし、モザイクの実装
