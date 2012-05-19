@@ -16,5 +16,6 @@ public:
 
 	void Test( void );
 	void Test2( void );
+	void Test3( void );
 };
 

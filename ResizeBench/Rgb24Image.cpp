@@ -27,7 +27,7 @@ Rgb24Image::Rgb24Image( HWND _hWnd, int _width, int _height ):
 	// HDC ‰ð•ú
 	ReleaseDC( hWnd, hdc );
 	hdc = NULL;
-	//hWnd = NULL;
+	hWnd = NULL;
 }
 
 

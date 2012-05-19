@@ -125,7 +125,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // グローバル変数にインスタンス処理を格納します。
 
    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, 480+10+480+20, 360+60+20, NULL, NULL, hInstance, NULL);
+      CW_USEDEFAULT, 0, 3*360+20, 60+360+20, NULL, NULL, hInstance, NULL);
 
    if (!hWnd)
    {
@@ -153,7 +153,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
 	HDC hdc;
-	int a, b;
+	int a, b, c;
 
 	switch (message)
 	{
@@ -169,8 +169,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case ID_BENCH_BEGIN:
 			hdc = GetDC( hWnd );
-			TextOut( hdc, 0, 0, L"Bilinear", 8 );
-			TextOut( hdc, 490, 0, L"Bicubic", 7 );
+			TextOut( hdc, 0, 0, L"NearestNighbor", 14 );
+			TextOut( hdc, 360, 0, L"Bilinear", 8 );
+			TextOut( hdc, 720, 0, L"Bicubic", 7 );
 
 			a = 0;
 			for( int i = 0; i < 10; ++i )
@@ -188,12 +189,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				ClearTimer();
 				b += count;
 			}
+			c = 0;
+			for( int i = 0; i < 10; ++i )
+			{
+				SetTimer( hWnd );
+				bench->Test3();
+				ClearTimer();
+				c += count;
+			}
 
 			wchar_t str[100];
 			swprintf( str, L"%.2f ms", a / 10.0 );
-			TextOut( hdc, 0 + 400, 0, str, wcslen( str ) );
+			TextOut( hdc, 0 + 280, 0, str, wcslen( str ) );
 			swprintf( str, L"%.2f ms", b / 10.0 );
-			TextOut( hdc, 490 + 400, 0, str, wcslen( str ) );
+			TextOut( hdc, 360 + 280, 0, str, wcslen( str ) );
+			swprintf( str, L"%.2f ms", c / 10.0 );
+			TextOut( hdc, 720 + 280, 0, str, wcslen( str ) );
 			ReleaseDC( hWnd, hdc );
 			break;
 		case IDM_ABOUT:
