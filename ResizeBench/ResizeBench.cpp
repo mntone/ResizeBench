@@ -125,7 +125,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // グローバル変数にインスタンス処理を格納します。
 
    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+      CW_USEDEFAULT, 0, 480+10+480+20, 360+60+20, NULL, NULL, hInstance, NULL);
 
    if (!hWnd)
    {
@@ -153,6 +153,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
 	HDC hdc;
+	int a, b;
 
 	switch (message)
 	{
@@ -167,13 +168,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wmId)
 		{
 		case ID_BENCH_BEGIN:
-			SetTimer( hWnd );
-			bench->Test();
-			ClearTimer();
+			hdc = GetDC( hWnd );
+			TextOut( hdc, 0, 0, L"Bilinear", 8 );
+			TextOut( hdc, 490, 0, L"Bicubic", 7 );
+
+			a = 0;
+			for( int i = 0; i < 10; ++i )
+			{
+				SetTimer( hWnd );
+				bench->Test();
+				ClearTimer();
+				a += count;
+			}
+			b = 0;
+			for( int i = 0; i < 10; ++i )
+			{
+				SetTimer( hWnd );
+				bench->Test2();
+				ClearTimer();
+				b += count;
+			}
 
 			wchar_t str[100];
-			swprintf( str, L"%d ms", count );
-			MessageBox( NULL, str, TEXT("Result"), MB_OK );
+			swprintf( str, L"%.2f ms", a / 10.0 );
+			TextOut( hdc, 0 + 400, 0, str, wcslen( str ) );
+			swprintf( str, L"%.2f ms", b / 10.0 );
+			TextOut( hdc, 490 + 400, 0, str, wcslen( str ) );
+			ReleaseDC( hWnd, hdc );
 			break;
 		case IDM_ABOUT:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
@@ -189,6 +210,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		hdc = BeginPaint(hWnd, &ps);
 		// TODO: 描画コードをここに追加してください...
 		EndPaint(hWnd, &ps);
+		break;
+
+	case WM_CLOSE:
+		ClearTimer();
+		DestroyWindow( hWnd );
 		break;
 
 	case WM_DESTROY:

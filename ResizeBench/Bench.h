@@ -8,13 +8,13 @@ protected:
 	HWND hWnd;
 	HDC  hdc;
 	
-	std::shared_ptr<Rgb24Image> i1, i2;
+	std::unique_ptr<Rgb24Image> i1, i2;
 
 public:
 	Bench( HWND hWnd );
 	~Bench( void );
 
-	void Bench::Test( void );
-	void NearestNeighbor1( Rgb24Image *src, Rgb24Image *dst );
+	void Test( void );
+	void Test2( void );
 };
 

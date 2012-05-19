@@ -24,7 +24,8 @@ public:
 	HDC GetImageDC( void );
 	LPBYTE *GetPixel( void );
 
-	void Rgb24Image::NearestNeighbor1( Rgb24Image *src );
-	void Rgb24Image::Bilinear1( Rgb24Image *src );
+	void NearestNeighbor1( Rgb24Image *src );
+	void Bilinear1( Rgb24Image *src );
+	void Bicubic1( Rgb24Image *src );
 };
 

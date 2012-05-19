@@ -1,11 +1,15 @@
-﻿2012/05/15 9:31:07 にビルドを開始しました。
+﻿2012/05/19 22:36:33 にビルドを開始しました。
      1>ノード 2 上のプロジェクト "C:\Users\owner\Documents\Visual Studio 2010\Projects\ResizeBench\ResizeBench\ResizeBench.vcxproj" (build ターゲット)。
      1>InitializeBuildStatus:
          "AlwaysCreate" が指定されたため "Release\ResizeBench.unsuccessfulbuild" を作成しています。
        ClCompile:
          すべての出力が最新のものです。
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\ResizeBench.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Rgb24Image.cpp
-         Rgb24Image.cpp
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Release\ResizeBench.pch" /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ResizeBench.cpp
+         ResizeBench.cpp
+     1>ResizeBench.cpp(193): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\swprintf.inl(85) : 'swprintf' の宣言を確認してください。
+     1>ResizeBench.cpp(195): warning C4996: 'swprintf': swprintf has been changed to conform with the ISO C standard, adding an extra character count parameter. To use traditional Microsoft swprintf, set _CRT_NON_CONFORMING_SWPRINTFS.
+                 c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\swprintf.inl(85) : 'swprintf' の宣言を確認してください。
        ResourceCompile:
          すべての出力が最新のものです。
        Link:
@@ -26,4 +30,4 @@
 
 ビルドに成功しました。
 
-経過時間 00:00:00.88
+経過時間 00:00:01.11

@@ -27,7 +27,7 @@ Rgb24Image::Rgb24Image( HWND _hWnd, int _width, int _height ):
 	// HDC 解放
 	ReleaseDC( hWnd, hdc );
 	hdc = NULL;
-	hWnd = NULL;
+	//hWnd = NULL;
 }
 
 
@@ -47,8 +47,8 @@ Rgb24Image::~Rgb24Image( void )
 
 	delete bmpi;
 
-	delete[] lpPixel;
-	lpPixel = NULL;
+	//delete[] lpPixel;
+	//lpPixel = NULL;
 }
 
 
@@ -127,7 +127,12 @@ void Rgb24Image::NearestNeighbor1( Rgb24Image *src )
 	}
 }
 
+
 // Bilinear (素コード、準最適化)
+//   1. s00, s01, s10, s11 と予めポインタの座標を計算した場合、
+//      メモリアクセス回数が増えすぎて、余計遅くなるかも？
+//      （レツノバッテリー駆動で 15 sec → 16 sec 程度）
+//      メモリアクセスが遅い DDR2 世代だとさらに差が開くかも。
 void Rgb24Image::Bilinear1( Rgb24Image *src )
 {
 	BYTE colorbuf[4];					// カラーバッファ
@@ -137,13 +142,13 @@ void Rgb24Image::Bilinear1( Rgb24Image *src )
 	int sl = 3 * sw;					// src の 1 列のビット長
 	int sh = src->GetHeight();			// src の高さ
 	int dl = 3 * width;					// dst の 1 列のビット長
+	
+	double scalew = ( double )sw / width / 3.0;		// 拡大倍率 (1/3 倍)
+	double scaleh = ( double )sh / height;			// 拡大倍率
 
-	double scalew = ( double )sw / width;
-	double scaleh = ( double )sh / height;
-
-	int x0, y0;
+	int w, h, i, x0, y0;
 	double x, y;
-	for( int h = 0; h < height; ++h )
+	for( h = 0; h < height; ++h )
 	{
 		// src の基準場所 (x, y) の y を求める
 		y = scaleh * h;
@@ -158,7 +163,7 @@ void Rgb24Image::Bilinear1( Rgb24Image *src )
 		// src の基準点からの基準場所 (Δx, Δy) の Δy を求める
 		y -= y0;
 
-		for( int w = 0; w < width; ++w )
+		for( w = 0; w < dl; w += 3 )
 		{
 			// src の基準場所 (x, y) の x を求める
 			x = scalew * w;
@@ -173,17 +178,131 @@ void Rgb24Image::Bilinear1( Rgb24Image *src )
 			// src の基準点からの基準場所 (Δx, Δy) の Δx を求める
 			x -= x0;
 
-			// TODO: propTL, propTR, propBL, propBR 変数で保存しておく
-            for( int i = 0; i < 3; ++i )
+			// 各点をコピー
+			for( i = 0; i < 3; ++i )
 			{
 				colorbuf[0] = ( *sp )[( y0     ) * sl + 3 * ( x0     ) + i];
 				colorbuf[1] = ( *sp )[( y0     ) * sl + 3 * ( x0 + 1 ) + i];
 				colorbuf[2] = ( *sp )[( y0 + 1 ) * sl + 3 * ( x0     ) + i];
 				colorbuf[3] = ( *sp )[( y0 + 1 ) * sl + 3 * ( x0 + 1 ) + i];
                                 
-				lpPixel[h * dl + 3 * w + i] = ( BYTE )( ( 1.0 - x ) * ( 1.0 - y ) * colorbuf[0]	+ x * ( 1.0 - y ) * colorbuf[1]
+				lpPixel[h * dl + w + i] = ( BYTE )( ( 1.0 - x ) * ( 1.0 - y ) * colorbuf[0]	+ x * ( 1.0 - y ) * colorbuf[1]
 					+ ( 1.0 - x ) * y * colorbuf[2] + x * y * colorbuf[3] + 0.5 );
-			}		
+			}
+		}
+	}
+}
+
+
+// Bicubic (素コード、最適化なし)
+void Rgb24Image::Bicubic1( Rgb24Image *src )
+{
+	double colorbuf[3];					// カラーバッファ
+	
+	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
+	int sw = src->GetWidth();			// src の幅
+	int sl = 3 * sw;					// src の 1 列のビット長
+	int sh = src->GetHeight();			// src の高さ
+	int dl = 3 * width;					// dst の 1 列のビット長
+	
+	double scalew = ( double )sw / width / 3.0;		// 拡大倍率 (1/3 倍)
+	double scaleh = ( double )sh / height;			// 拡大倍率
+
+	int w, h, i, j, x0, y0, mx, my;
+	double x, y, wx, wy, dx, dy;
+	for( h = 0; h < height; ++h )
+	{
+		// src の基準場所 (x, y) の y を求める
+		y = scaleh * h;
+
+		// src の基準点 (x0, y0) の y0 を求める
+		y0 = ( int )y;
+
+		// src 上の点 y0 を範囲外の点を範囲内に引き戻す
+		if( y0 < 1 )
+			y0 = 1;
+		else if( y0 > sh - 3 )
+			y0 = sh - 3;
+
+		for( w = 0; w < dl; w += 3 )
+		{
+			// src の基準場所 (x, y) の x を求める
+			x = scalew * w;
+
+			// src の基準点 (x0, y0) の x0 を求める
+			x0 = ( int )x;
+
+			// src 上の点 x0 を範囲外の点を範囲内に引き戻す
+			if( x0 < 1 )
+				x0 = 1;
+			else if( x0 > sw - 3 )
+				x0 = sw - 3;
+			
+			// カラーバッファリセット
+			colorbuf[0] = colorbuf[1] = colorbuf[2] = 0.0;
+			
+			for( j = -1; j <= 2; ++j )
+			{
+				my = y0 + j;
+				dy = ( double )my - y;
+
+				if( dy < 0.0 )
+					dy = -dy;
+
+				if( dy <= 1.0 )
+					wy = 1.0 - 2.0 * dy * dy + dy * dy * dy;
+				else if( dy <= 2.0 )
+					wy = 4.0 - 8.0 * dy + 5.0 * dy * dy - dy * dy * dy;
+				else
+					continue;
+
+				for( i = -1; i <= 2; ++i )
+				{
+					mx = x0 + i;
+					dx = ( double )mx - x;
+					
+					if( dx < 0.0 )
+						dx = -dx;
+
+					if( dx <= 1.0 )
+						wx = wy * ( 1.0 - 2.0 * dx * dx + dx * dx * dx );
+					else if( dx <= 2.0 )
+						wx = wy * ( 4.0 - 8.0 * dx + 5.0 * dx * dx - dx * dx * dx );
+					else
+						continue;
+
+					colorbuf[0] += wx * ( double )( ( *sp )[my * sl + 3 * mx    ] );
+					colorbuf[1] += wx * ( double )( ( *sp )[my * sl + 3 * mx + 1] );
+					colorbuf[2] += wx * ( double )( ( *sp )[my * sl + 3 * mx + 2] );
+
+			//wchar_t str[256];
+			//swprintf( str, L"weight: %.2f, wy: %.2f, x: %.2f, y: %.2f, dx: %.2f, dy: %.2f, c: %d", wx, wy, x, y, dx, dy, ( *sp )[my * sl + 3 * mx    ] );
+			//MessageBox( hWnd, str, L"INFO", MB_OK );
+				}
+			}
+
+			//wchar_t str[256];
+			//swprintf( str, L"cb[0]: %.3f, cb[1]:  %.3f, cb[2]: %.3f", colorbuf[0], colorbuf[1], colorbuf[2] );
+			//MessageBox( hWnd, str, L"INFO", MB_OK );
+			
+			if( colorbuf[0] < 0.0 )
+				colorbuf[0] = 0.0;
+			else if( colorbuf[0] > 255.0 )
+				colorbuf[0] = 255.0;
+
+			if( colorbuf[1] < 0.0 )
+				colorbuf[1] = 0.0;
+			else if( colorbuf[1] > 255.0 )
+				colorbuf[1] = 255.0;
+			
+			if( colorbuf[2] < 0.0 )
+				colorbuf[2] = 0.0;
+			else if( colorbuf[2] > 255.0 )
+				colorbuf[2] = 255.0;
+
+			lpPixel[h * dl + w    ] = ( int )( colorbuf[0] + 0.5 );
+			lpPixel[h * dl + w + 1] = ( int )( colorbuf[1] + 0.5 );
+			lpPixel[h * dl + w + 2] = ( int )( colorbuf[2] + 0.5 );
 		}
 	}
 }

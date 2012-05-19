@@ -21,6 +21,8 @@ Bench::~Bench(void)
 {
 	// HDC ‰ð•ú
 	ReleaseDC( hWnd, hdc );
+	hdc = NULL;
+	hWnd = NULL;
 }
 
 void Bench::Test( void )
@@ -29,10 +31,22 @@ void Bench::Test( void )
 	BitBlt( i1->GetImageDC(), 0, 0, 640, 480, deskhdc, 0, 0, SRCCOPY );
 	ReleaseDC( 0, deskhdc );
 
-	for( int i = 0; i < 1024; ++i )
-		i2->Bilinear1( i1.get() );
+	i2->Bilinear1( i1.get() );
 
-	BitBlt( hdc, 0, 0, 480, 360, i2->GetImageDC(), 0, 0, SRCCOPY );
+	BitBlt( hdc, 0, 20, 480, 360, i2->GetImageDC(), 0, 0, SRCCOPY );
+
+	return;
+}
+
+void Bench::Test2( void )
+{
+	HDC deskhdc = GetDC( 0 );
+	BitBlt( i1->GetImageDC(), 0, 0, 640, 480, deskhdc, 0, 0, SRCCOPY );
+	ReleaseDC( 0, deskhdc );
+
+	i2->Bicubic1( i1.get() );
+
+	BitBlt( hdc, 490, 20, 480, 360, i2->GetImageDC(), 0, 0, SRCCOPY );
 
 	return;
 }
