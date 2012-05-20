@@ -6,7 +6,7 @@ class Bench
 {
 protected:
 	HWND hWnd;
-	HDC  hdc;
+	HDC  hdc, deskhdc;
 	
 	std::unique_ptr<Rgb24Image> i1, i2, i3;
 

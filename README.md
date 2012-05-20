@@ -17,13 +17,13 @@
 - x86, x64 両方動作するようなコードに。
 
 ##Implementation
+- 基本操作: Copy, Trim
 - 縮小拡大: NearestNeighbor, Bilinear, Bicubic
-- 加工関連: FlipX, FlipY
+- 加工関連: FlipX, FlipY, Rotate90
 
 ##To Do
 - Nearest Neighbor Filter, Bilinear Filter, Bicubic Filter の最適化
-- Bilinear の SIMD 命令化。(over SSE3/over AVX) → AVX は整数演算? (注) SSE3＝Pen4。SSE3 以上で実装すれば基本動作する。
-- 90°回転の実装
+- Bilinear, Bicubic の SIMD 命令化 (SSE3 まで)。
 - 色反転、明るさ調節、ぼかし、モザイクの実装
 
 ##Problem

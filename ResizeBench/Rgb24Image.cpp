@@ -45,10 +45,11 @@ Rgb24Image::~Rgb24Image( void )
 		hBitmap = NULL;
 	}
 
-	delete bmpi;
-
-	//delete[] lpPixel;
-	//lpPixel = NULL;
+	if( bmpi )
+	{
+		delete bmpi;
+		bmpi = NULL;
+	}
 }
 
 
@@ -77,9 +78,8 @@ LPBYTE *Rgb24Image::GetPixel( void )
 
 
 // ----------- 以下、画像処理関数群 ------------
-//typedef struct { BYTE b, g, r; } RGB24;
-//typedef RGB24 *LPRGB24;
 
+// Copy
 bool Rgb24Image::Copy( Rgb24Image *src )
 {
 	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
@@ -96,10 +96,30 @@ bool Rgb24Image::Copy( Rgb24Image *src )
 	return true;
 }
 
-// NearestNeighbor (素コード、準最適化)
+// Trim
+bool Rgb24Image::Trim( RECT rect, Rgb24Image *src )
+{
+	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
+	int sw = src->GetWidth();			// src の幅
+	int sl = 3 * sw;					// src の 1 列のビット長
+	int sh = src->GetHeight();			// src の高さ
+	int dl = 3 * width;					// dst の 1 列のビット長
+	int ll = 3 * rect.left;				// 垂直方向の trim の始点までのビット長
+
+	// サイズが違うかチェック
+	if( sw < rect.right || sh < rect.bottom || rect.right != width + rect.left || rect.bottom != height + rect.top  )
+		return false;
+
+	for( int h = 0; h < height; ++h )
+		memcpy( lpPixel + h * dl, *sp + ( rect.top + h ) * sl + ll, dl );
+
+	return true;
+}
+
+// NearestNeighbor
 // [todo] scaleh * h を掛け算して求めるのではなく、足し算で求めるほうがいい?
 //        (e.g.) double hprop = scaleh * h; y(double) += hprop; y0 = ( int )( y + 0.5 );
-void Rgb24Image::NearestNeighbor1( Rgb24Image *src )
+void Rgb24Image::NearestNeighbor( Rgb24Image *src )
 {
 	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
 	int sw = src->GetWidth();			// src の幅
@@ -110,7 +130,7 @@ void Rgb24Image::NearestNeighbor1( Rgb24Image *src )
 	double scalew = ( double )sw / width / 3.0;		// 拡大倍率 (1/3 倍)
 	double scaleh = ( double )sh / height;			// 拡大倍率
 
-	int w, h, hxdl, y0xsl, pl, x0, y0;	// ループ中で確保する一時変数
+	int w, h, hxdl, y0xsl, x0, y0;		// ループ中で確保する一時変数
 	for( h = 0; h < height; ++h )
 	{		
 		// src の基準点 (x0, y0) の y0 を求める
@@ -131,20 +151,15 @@ void Rgb24Image::NearestNeighbor1( Rgb24Image *src )
 			// src 上の点 x0 を範囲外の点を範囲内に引き戻す
 			if( x0 >= sw )
 				x0 = sw - 1;
-
-			// src の基準点までのビット長算出
-			pl = y0xsl + 3 * x0;
-
+			
 			// src の基準点 (x0, y0) を dst の点 (w, h) にコピー
-			lpPixel[hxdl + w    ] = ( *sp )[pl    ];
-			lpPixel[hxdl + w + 1] = ( *sp )[pl + 1];
-			lpPixel[hxdl + w + 2] = ( *sp )[pl + 2];
+			memcpy( lpPixel + hxdl + w, *sp + y0xsl + 3 * x0, 3 );
 		}
 	}
 }
 
 
-// Bilinear (素コード、準最適化)
+// Bilinear
 //   1. s00, s01, s10, s11 と予めポインタの座標を計算した場合、
 //      メモリアクセス回数が増えすぎて、余計遅くなるかも？
 //      （レツノバッテリー駆動で 15 sec → 16 sec 程度）
@@ -210,7 +225,7 @@ void Rgb24Image::Bilinear1( Rgb24Image *src )
 }
 
 
-// Bicubic (素コード、最適化なし)
+// Bicubic
 void Rgb24Image::Bicubic1( Rgb24Image *src )
 {
 	double colorbuf[3];					// カラーバッファ
@@ -328,9 +343,9 @@ void Rgb24Image::Bicubic1( Rgb24Image *src )
 }
 
 
-// FlipXY (素コード、最適化なし)
+// FlipXY
 // flipX = false AND flipY = false のとき Copy 実行
-bool Rgb24Image::FilpXY1( bool flipX, bool flipY, Rgb24Image *src )
+bool Rgb24Image::FilpXY( bool flipX, bool flipY, Rgb24Image *src )
 {
 	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
 	int sw = src->GetWidth();			// src の幅
@@ -341,28 +356,20 @@ bool Rgb24Image::FilpXY1( bool flipX, bool flipY, Rgb24Image *src )
 	if( sw != width || sh != height )
 		return false;
 
-	// 処理速度を高速化するために、ループ外で判断
+	// 処理速度を高速化するために、ループ外で条件分岐
 	int w, h;
 
 	// 上下左右反転
 	if( flipX && flipY )
 		for( h = 0; h < height; ++h )
 			for( w = 0; w < dl; w += 3 )
-			{
-				lpPixel[h * dl + w    ] = ( *sp )[( height - h - 1 ) * dl + ( dl - w - 3 )    ];
-				lpPixel[h * dl + w + 1] = ( *sp )[( height - h - 1 ) * dl + ( dl - w - 3 ) + 1];
-				lpPixel[h * dl + w + 2] = ( *sp )[( height - h - 1 ) * dl + ( dl - w - 3 ) + 2];
-			}
+				memcpy( lpPixel + h * dl + w, *sp + ( height - h - 1 ) * dl + ( dl - w - 3 ), 3 );
 
 	// 左右反転
 	else if( flipX )
 		for( h = 0; h < height; ++h )
 			for( w = 0; w < dl; w += 3 )
-			{
-				lpPixel[h * dl + w    ] = ( *sp )[h * dl + ( dl - w - 3 )    ];
-				lpPixel[h * dl + w + 1] = ( *sp )[h * dl + ( dl - w - 3 ) + 1];
-				lpPixel[h * dl + w + 2] = ( *sp )[h * dl + ( dl - w - 3 ) + 2];
-			}
+				memcpy( lpPixel + h * dl + w, *sp + h * dl + ( dl - w - 3 ), 3 );
 
 	// 上下反転
 	else if( flipY )
@@ -370,7 +377,28 @@ bool Rgb24Image::FilpXY1( bool flipX, bool flipY, Rgb24Image *src )
 			memcpy( lpPixel + h * dl, *sp + ( height - h - 1 ) * dl, dl );
 	else
 		Copy( src );
-		
+
+	return true;
+}
+
+
+// Rotate90
+bool Rgb24Image::Rotate90( Rgb24Image *src )
+{
+	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
+	int sw = src->GetWidth();			// src の幅
+	int sl = 3 * sw;					// src の 1 列のビット長
+	int sh = src->GetHeight();			// src の高さ
+	int dl = 3 * width;					// dst の 1 列のビット長
+
+	// サイズが違うかチェック
+	if( sw != height || sh != width )
+		return false;
+
+	int w, h;
+	for( h = 0; h < height; ++h )
+		for( w = 0; w < width; ++w )
+			memcpy( lpPixel + h * dl + 3 * w, *sp + w * sl + 3 * ( height - h - 1 ), 3 );
 
 	return true;
 }
