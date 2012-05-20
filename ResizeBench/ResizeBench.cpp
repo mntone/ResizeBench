@@ -169,12 +169,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 		case ID_BENCH_BEGIN:
 			hdc = GetDC( hWnd );
-			TextOut( hdc, 0, 0, L"NearestNighbor", 14 );
+			TextOut( hdc, 0, 0, L"NearestNeighbor", 15 );
 			TextOut( hdc, 360, 0, L"Bilinear", 8 );
 			TextOut( hdc, 720, 0, L"Bicubic", 7 );
 
 			a = 0;
-			for( int i = 0; i < 10; ++i )
+			for( int i = 0; i < 100; ++i )
 			{
 				SetTimer( hWnd );
 				bench->Test();
@@ -182,7 +182,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				a += count;
 			}
 			b = 0;
-			for( int i = 0; i < 10; ++i )
+			for( int i = 0; i < 100; ++i )
 			{
 				SetTimer( hWnd );
 				bench->Test2();
@@ -190,7 +190,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				b += count;
 			}
 			c = 0;
-			for( int i = 0; i < 10; ++i )
+			for( int i = 0; i < 100; ++i )
 			{
 				SetTimer( hWnd );
 				bench->Test3();
@@ -199,11 +199,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 
 			wchar_t str[100];
-			swprintf( str, L"%.2f ms", a / 10.0 );
+			swprintf( str, L"%.2f ms", a / 100.0 );
 			TextOut( hdc, 0 + 280, 0, str, wcslen( str ) );
-			swprintf( str, L"%.2f ms", b / 10.0 );
+			swprintf( str, L"%.2f ms", b / 100.0 );
 			TextOut( hdc, 360 + 280, 0, str, wcslen( str ) );
-			swprintf( str, L"%.2f ms", c / 10.0 );
+			swprintf( str, L"%.2f ms", c / 100.0 );
 			TextOut( hdc, 720 + 280, 0, str, wcslen( str ) );
 			ReleaseDC( hWnd, hdc );
 			break;

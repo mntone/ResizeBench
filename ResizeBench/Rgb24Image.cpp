@@ -355,24 +355,24 @@ bool Rgb24Image::FilpXY1( bool flipX, bool flipY, Rgb24Image *src )
 				lpPixel[h * dl + w + 2] = ( *sp )[( height - h - 1 ) * dl + ( dl - w - 3 ) + 2];
 			}
 
-	// è„â∫îΩì]
-	else if( flipX )
-		for( h = 0; h < height; ++h )
-			for( w = 0; w < dl; w += 3 )
-			{
-				lpPixel[h * dl + w    ] = ( *sp )[( height - h - 1 ) * dl + w    ];
-				lpPixel[h * dl + w + 1] = ( *sp )[( height - h - 1 ) * dl + w + 1];
-				lpPixel[h * dl + w + 2] = ( *sp )[( height - h - 1 ) * dl + w + 2];
-			}
-
 	// ç∂âEîΩì]
-	else if( flipY )
+	else if( flipX )
 		for( h = 0; h < height; ++h )
 			for( w = 0; w < dl; w += 3 )
 			{
 				lpPixel[h * dl + w    ] = ( *sp )[h * dl + ( dl - w - 3 )    ];
 				lpPixel[h * dl + w + 1] = ( *sp )[h * dl + ( dl - w - 3 ) + 1];
 				lpPixel[h * dl + w + 2] = ( *sp )[h * dl + ( dl - w - 3 ) + 2];
+			}
+
+	// è„â∫îΩì]
+	else if( flipY )
+		for( h = 0; h < height; ++h )
+			for( w = 0; w < dl; w += 3 )
+			{
+				lpPixel[h * dl + w    ] = ( *sp )[( height - h - 1 ) * dl + w    ];
+				lpPixel[h * dl + w + 1] = ( *sp )[( height - h - 1 ) * dl + w + 1];
+				lpPixel[h * dl + w + 2] = ( *sp )[( height - h - 1 ) * dl + w + 2];
 			}
 	else
 		Copy( src );
