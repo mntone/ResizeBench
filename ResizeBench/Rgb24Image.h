@@ -24,8 +24,10 @@ public:
 	HDC GetImageDC( void );
 	LPBYTE *GetPixel( void );
 
+	bool Copy( Rgb24Image *src );
 	void NearestNeighbor1( Rgb24Image *src );
 	void Bilinear1( Rgb24Image *src );
 	void Bicubic1( Rgb24Image *src );
+	bool FilpXY1( bool flipX, bool flipY, Rgb24Image *src );
 };
 

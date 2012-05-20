@@ -80,6 +80,22 @@ LPBYTE *Rgb24Image::GetPixel( void )
 //typedef struct { BYTE b, g, r; } RGB24;
 //typedef RGB24 *LPRGB24;
 
+bool Rgb24Image::Copy( Rgb24Image *src )
+{
+	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
+	int sw = src->GetWidth();			// src の幅
+	int sh = src->GetHeight();			// src の高さ
+
+	// サイズが違うかチェック
+	if( sw != width || sh != height )
+		return false;
+
+	// コピー
+	memcpy( lpPixel, *sp, 3 * width * height );
+
+	return true;
+}
+
 // NearestNeighbor (素コード、準最適化)
 // [todo] scaleh * h を掛け算して求めるのではなく、足し算で求めるほうがいい?
 //        (e.g.) double hprop = scaleh * h; y(double) += hprop; y0 = ( int )( y + 0.5 );
@@ -241,14 +257,19 @@ void Rgb24Image::Bicubic1( Rgb24Image *src )
 			// カラーバッファリセット
 			colorbuf[0] = colorbuf[1] = colorbuf[2] = 0.0;
 			
+			// 基準点から直近の 16 点で重み計算
 			for( j = -1; j <= 2; ++j )
 			{
+				// 取り扱う点 (mx, my) の my を計算
+				// 基準場所からの距離差 Δy を求める
 				my = y0 + j;
 				dy = ( double )my - y;
 
+				// 絶対値
 				if( dy < 0.0 )
 					dy = -dy;
 
+				// y 方向の重み計算
 				if( dy <= 1.0 )
 					wy = 1.0 - 2.0 * dy * dy + dy * dy * dy;
 				else if( dy <= 2.0 )
@@ -258,12 +279,16 @@ void Rgb24Image::Bicubic1( Rgb24Image *src )
 
 				for( i = -1; i <= 2; ++i )
 				{
+					// 取り扱う点 (mx, my) の mx を計算
+					// 基準場所からの距離差 Δx を求める
 					mx = x0 + i;
 					dx = ( double )mx - x;
 					
+					// 絶対値
 					if( dx < 0.0 )
 						dx = -dx;
 
+					// x 方向の重み計算
 					if( dx <= 1.0 )
 						wx = wy * ( 1.0 - 2.0 * dx * dx + dx * dx * dx );
 					else if( dx <= 2.0 )
@@ -271,38 +296,87 @@ void Rgb24Image::Bicubic1( Rgb24Image *src )
 					else
 						continue;
 
+					// カラーバッファーに足す
 					colorbuf[0] += wx * ( double )( ( *sp )[my * sl + 3 * mx    ] );
 					colorbuf[1] += wx * ( double )( ( *sp )[my * sl + 3 * mx + 1] );
 					colorbuf[2] += wx * ( double )( ( *sp )[my * sl + 3 * mx + 2] );
-
-			//wchar_t str[256];
-			//swprintf( str, L"weight: %.2f, wy: %.2f, x: %.2f, y: %.2f, dx: %.2f, dy: %.2f, c: %d", wx, wy, x, y, dx, dy, ( *sp )[my * sl + 3 * mx    ] );
-			//MessageBox( hWnd, str, L"INFO", MB_OK );
 				}
 			}
-
-			//wchar_t str[256];
-			//swprintf( str, L"cb[0]: %.3f, cb[1]:  %.3f, cb[2]: %.3f", colorbuf[0], colorbuf[1], colorbuf[2] );
-			//MessageBox( hWnd, str, L"INFO", MB_OK );
 			
+			// オーバーしたものを戻す (四捨五入考慮済み)
 			if( colorbuf[0] < 0.0 )
 				colorbuf[0] = 0.0;
-			else if( colorbuf[0] > 255.0 )
-				colorbuf[0] = 255.0;
+			else if( colorbuf[0] > 254.9 )
+				colorbuf[0] = 254.9;
 
 			if( colorbuf[1] < 0.0 )
 				colorbuf[1] = 0.0;
-			else if( colorbuf[1] > 255.0 )
-				colorbuf[1] = 255.0;
+			else if( colorbuf[1] > 254.9 )
+				colorbuf[1] = 254.9;
 			
 			if( colorbuf[2] < 0.0 )
 				colorbuf[2] = 0.0;
-			else if( colorbuf[2] > 255.0 )
-				colorbuf[2] = 255.0;
+			else if( colorbuf[2] > 254.9 )
+				colorbuf[2] = 254.9;
 
+			// 格納
 			lpPixel[h * dl + w    ] = ( int )( colorbuf[0] + 0.5 );
 			lpPixel[h * dl + w + 1] = ( int )( colorbuf[1] + 0.5 );
 			lpPixel[h * dl + w + 2] = ( int )( colorbuf[2] + 0.5 );
 		}
 	}
+}
+
+
+// FlipXY (素コード、最適化なし)
+// flipX = false AND flipY = false のとき Copy 実行
+bool Rgb24Image::FilpXY1( bool flipX, bool flipY, Rgb24Image *src )
+{
+	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
+	int sw = src->GetWidth();			// src の幅
+	int sl = 3 * sw;					// src の 1 列のビット長
+	int sh = src->GetHeight();			// src の高さ
+	int dl = 3 * width;					// dst の 1 列のビット長
+
+	// サイズが違うかチェック
+	if( sw != width || sh != height )
+		return false;
+
+	// 処理速度を高速化するために、ループ外で判断
+	int w, h;
+
+	// 上下左右反転
+	if( flipX && flipY )
+		for( h = 0; h < height; ++h )
+			for( w = 0; w < dl; w += 3 )
+			{
+				lpPixel[h * dl + w    ] = ( *sp )[( height - h - 1 ) * dl + ( dl - w - 3 )    ];
+				lpPixel[h * dl + w + 1] = ( *sp )[( height - h - 1 ) * dl + ( dl - w - 3 ) + 1];
+				lpPixel[h * dl + w + 2] = ( *sp )[( height - h - 1 ) * dl + ( dl - w - 3 ) + 2];
+			}
+
+	// 上下反転
+	else if( flipX )
+		for( h = 0; h < height; ++h )
+			for( w = 0; w < dl; w += 3 )
+			{
+				lpPixel[h * dl + w    ] = ( *sp )[( height - h - 1 ) * dl + w    ];
+				lpPixel[h * dl + w + 1] = ( *sp )[( height - h - 1 ) * dl + w + 1];
+				lpPixel[h * dl + w + 2] = ( *sp )[( height - h - 1 ) * dl + w + 2];
+			}
+
+	// 左右反転
+	else if( flipY )
+		for( h = 0; h < height; ++h )
+			for( w = 0; w < dl; w += 3 )
+			{
+				lpPixel[h * dl + w    ] = ( *sp )[h * dl + ( dl - w - 3 )    ];
+				lpPixel[h * dl + w + 1] = ( *sp )[h * dl + ( dl - w - 3 ) + 1];
+				lpPixel[h * dl + w + 2] = ( *sp )[h * dl + ( dl - w - 3 ) + 2];
+			}
+	else
+		Copy( src );
+		
+
+	return true;
 }
