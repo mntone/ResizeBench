@@ -8,7 +8,7 @@ protected:
 	HWND hWnd;
 	HDC  hdc;
 	
-	std::unique_ptr<Rgb24Image> i1, i2;
+	std::unique_ptr<Rgb24Image> i1, i2, i3;
 
 public:
 	Bench( HWND hWnd );

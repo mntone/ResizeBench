@@ -334,7 +334,6 @@ bool Rgb24Image::FilpXY1( bool flipX, bool flipY, Rgb24Image *src )
 {
 	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
 	int sw = src->GetWidth();			// src の幅
-	int sl = 3 * sw;					// src の 1 列のビット長
 	int sh = src->GetHeight();			// src の高さ
 	int dl = 3 * width;					// dst の 1 列のビット長
 
@@ -368,12 +367,7 @@ bool Rgb24Image::FilpXY1( bool flipX, bool flipY, Rgb24Image *src )
 	// 上下反転
 	else if( flipY )
 		for( h = 0; h < height; ++h )
-			for( w = 0; w < dl; w += 3 )
-			{
-				lpPixel[h * dl + w    ] = ( *sp )[( height - h - 1 ) * dl + w    ];
-				lpPixel[h * dl + w + 1] = ( *sp )[( height - h - 1 ) * dl + w + 1];
-				lpPixel[h * dl + w + 2] = ( *sp )[( height - h - 1 ) * dl + w + 2];
-			}
+			memcpy( lpPixel + h * dl, *sp + ( height - h - 1 ) * dl, dl );
 	else
 		Copy( src );
 		

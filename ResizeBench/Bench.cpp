@@ -11,6 +11,7 @@ Bench::Bench( HWND _hWnd ):
 	// サンプル画像用意
 	i1.reset( new Rgb24Image( hWnd, 640, 480 ) );
 	i2.reset( new Rgb24Image( hWnd, 480, 360 ) );
+	i3.reset( new Rgb24Image( hWnd, 640, 480 ) );
 
 	// アプリケーション本体が動くスレッドの優先度を上げる
 	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_HIGHEST );
