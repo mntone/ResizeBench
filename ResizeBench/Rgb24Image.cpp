@@ -1,10 +1,10 @@
 #include "StdAfx.h"
 #include "Rgb24Image.h"
 
-Rgb24Image::Rgb24Image( HWND _hWnd, int _width, int _height ):
-	hWnd( _hWnd ),
-	width( _width ),
-	height( _height ),
+Rgb24Image::Rgb24Image( HWND hWnd_, int width_, int height_ ):
+	hWnd( hWnd_ ),
+	width( width_ ),
+	height( height_ ),
 	lpPixel( NULL )
 {
 	// DIB の情報を用意
@@ -20,7 +20,7 @@ Rgb24Image::Rgb24Image( HWND _hWnd, int _width, int _height ):
 	hdc = GetDC( hWnd );
 
 	// DIBSection の作成
-	hBitmap = CreateDIBSection( hdc, bmpi, DIB_RGB_COLORS, ( void ** )&lpPixel, NULL, 0 );
+	hBitmap = CreateDIBSection( hdc, bmpi, DIB_RGB_COLORS, reinterpret_cast<void **>( &lpPixel ), NULL, 0 );
 	hMemDC = CreateCompatibleDC( hdc );
 	SelectObject( hMemDC, hBitmap );
 
@@ -50,30 +50,6 @@ Rgb24Image::~Rgb24Image( void )
 		delete bmpi;
 		bmpi = NULL;
 	}
-}
-
-
-int Rgb24Image::GetWidth( void )
-{
-	return width;
-}
-
-
-int Rgb24Image::GetHeight( void )
-{
-	return height;
-}
-
-
-HDC Rgb24Image::GetImageDC( void )
-{
-	return hMemDC;
-}
-
-
-LPBYTE *Rgb24Image::GetPixel( void )
-{
-	return &lpPixel;
 }
 
 
@@ -127,14 +103,14 @@ void Rgb24Image::NearestNeighbor( Rgb24Image *src )
 	int sh = src->GetHeight();			// src の高さ
 	int dl = 3 * width;					// dst の 1 列のビット長
 
-	double scalew = ( double )sw / width / 3.0;		// 拡大倍率 (1/3 倍)
-	double scaleh = ( double )sh / height;			// 拡大倍率
+	double scalew = static_cast<double>( sw ) / static_cast<double>( width ) / 3.0;		// 拡大倍率 (1/3 倍)
+	double scaleh = static_cast<double>( sh ) / static_cast<double>( height );			// 拡大倍率
 
 	int w, h, hxdl, y0xsl, x0, y0;		// ループ中で確保する一時変数
 	for( h = 0; h < height; ++h )
 	{		
 		// src の基準点 (x0, y0) の y0 を求める
-		y0 = ( int )( scaleh * h + 0.5 );
+		y0 = static_cast<int>( scaleh * h + 0.5 );
 
 		// src 上の点 y0 を範囲外の点を範囲内に引き戻す
 		if( y0 >= sh )
@@ -146,7 +122,7 @@ void Rgb24Image::NearestNeighbor( Rgb24Image *src )
 		for( w = 0; w < dl; w += 3 )
 		{
 			// src の基準点 (x0, y0) の x0 を求める
-			x0 = ( int )( scalew * w + 0.5 );
+			x0 = static_cast<int>( scalew * w + 0.5 );
 			
 			// src 上の点 x0 を範囲外の点を範囲内に引き戻す
 			if( x0 >= sw )
@@ -174,8 +150,8 @@ void Rgb24Image::Bilinear1( Rgb24Image *src )
 	int sh = src->GetHeight();			// src の高さ
 	int dl = 3 * width;					// dst の 1 列のビット長
 	
-	double scalew = ( double )sw / width / 3.0;		// 拡大倍率 (1/3 倍)
-	double scaleh = ( double )sh / height;			// 拡大倍率
+	double scalew = static_cast<double>( sw ) / static_cast<double>( width ) / 3.0;		// 拡大倍率 (1/3 倍)
+	double scaleh = static_cast<double>( sh ) / static_cast<double>( height );			// 拡大倍率
 
 	int w, h, i, x0, y0;
 	double x, y;
@@ -185,7 +161,7 @@ void Rgb24Image::Bilinear1( Rgb24Image *src )
 		y = scaleh * h;
 
 		// src の基準点 (x0, y0) の y0 を求める
-		y0 = ( int )y;
+		y0 = static_cast<int>( y );
 
 		// src 上の点 y0 を範囲外の点を範囲内に引き戻す
 		if( y0 > sh - 2 )
@@ -200,7 +176,7 @@ void Rgb24Image::Bilinear1( Rgb24Image *src )
 			x = scalew * w;
 
 			// src の基準点 (x0, y0) の x0 を求める
-			x0 = ( int )x;
+			x0 = static_cast<int>( x );
 
 			// src 上の点 x0 を範囲外の点を範囲内に引き戻す
 			if( x0 > sw - 2 )
@@ -236,8 +212,8 @@ void Rgb24Image::Bicubic1( Rgb24Image *src )
 	int sh = src->GetHeight();			// src の高さ
 	int dl = 3 * width;					// dst の 1 列のビット長
 	
-	double scalew = ( double )sw / width / 3.0;		// 拡大倍率 (1/3 倍)
-	double scaleh = ( double )sh / height;			// 拡大倍率
+	double scalew = static_cast<double>( sw ) / static_cast<double>( width ) / 3.0;		// 拡大倍率 (1/3 倍)
+	double scaleh = static_cast<double>( sh ) / static_cast<double>( height );			// 拡大倍率
 
 	int w, h, i, j, x0, y0, mx, my;
 	double x, y, wx, wy, dx, dy;
@@ -247,7 +223,7 @@ void Rgb24Image::Bicubic1( Rgb24Image *src )
 		y = scaleh * h;
 
 		// src の基準点 (x0, y0) の y0 を求める
-		y0 = ( int )y;
+		y0 = static_cast<int>( y );
 
 		// src 上の点 y0 を範囲外の点を範囲内に引き戻す
 		if( y0 < 1 )
@@ -261,7 +237,7 @@ void Rgb24Image::Bicubic1( Rgb24Image *src )
 			x = scalew * w;
 
 			// src の基準点 (x0, y0) の x0 を求める
-			x0 = ( int )x;
+			x0 = static_cast<int>( x );
 
 			// src 上の点 x0 を範囲外の点を範囲内に引き戻す
 			if( x0 < 1 )
@@ -278,7 +254,7 @@ void Rgb24Image::Bicubic1( Rgb24Image *src )
 				// 取り扱う点 (mx, my) の my を計算
 				// 基準場所からの距離差 Δy を求める
 				my = y0 + j;
-				dy = ( double )my - y;
+				dy = static_cast<double>( my ) - y;
 
 				// 絶対値
 				if( dy < 0.0 )
@@ -297,7 +273,7 @@ void Rgb24Image::Bicubic1( Rgb24Image *src )
 					// 取り扱う点 (mx, my) の mx を計算
 					// 基準場所からの距離差 Δx を求める
 					mx = x0 + i;
-					dx = ( double )mx - x;
+					dx = static_cast<double>( mx ) - x;
 					
 					// 絶対値
 					if( dx < 0.0 )
@@ -312,9 +288,9 @@ void Rgb24Image::Bicubic1( Rgb24Image *src )
 						continue;
 
 					// カラーバッファーに足す
-					colorbuf[0] += wx * ( double )( ( *sp )[my * sl + 3 * mx    ] );
-					colorbuf[1] += wx * ( double )( ( *sp )[my * sl + 3 * mx + 1] );
-					colorbuf[2] += wx * ( double )( ( *sp )[my * sl + 3 * mx + 2] );
+					colorbuf[0] += wx * static_cast<double>( ( *sp )[my * sl + 3 * mx    ] );
+					colorbuf[1] += wx * static_cast<double>( ( *sp )[my * sl + 3 * mx + 1] );
+					colorbuf[2] += wx * static_cast<double>( ( *sp )[my * sl + 3 * mx + 2] );
 				}
 			}
 			
@@ -335,9 +311,9 @@ void Rgb24Image::Bicubic1( Rgb24Image *src )
 				colorbuf[2] = 254.9;
 
 			// 格納
-			lpPixel[h * dl + w    ] = ( int )( colorbuf[0] + 0.5 );
-			lpPixel[h * dl + w + 1] = ( int )( colorbuf[1] + 0.5 );
-			lpPixel[h * dl + w + 2] = ( int )( colorbuf[2] + 0.5 );
+			lpPixel[h * dl + w    ] = static_cast<int>( colorbuf[0] + 0.5 );
+			lpPixel[h * dl + w + 1] = static_cast<int>( colorbuf[1] + 0.5 );
+			lpPixel[h * dl + w + 2] = static_cast<int>( colorbuf[2] + 0.5 );
 		}
 	}
 }

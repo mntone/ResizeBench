@@ -2,8 +2,8 @@
 #include "Bench.h"
 
 
-Bench::Bench( HWND _hWnd ):
-	hWnd( _hWnd )
+Bench::Bench( HWND hWnd_ ):
+	hWnd( hWnd_ )
 {
 	// HDC Žæ“¾
 	hdc = GetDC( hWnd );
