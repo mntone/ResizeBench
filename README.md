@@ -20,12 +20,12 @@
 ##Implementation
 - 基本操作: Copy, Trim
 - 縮小拡大: NearestNeighbor, Bilinear, Bicubic
-- 加工関連: FlipX, FlipY, Rotate90
+- 加工関連: FlipX, FlipY, Rotate90, InvNegaPosi, Mozaic
 
 ##To Do
 - Nearest Neighbor Filter, Bilinear Filter, Bicubic Filter の最適化
 - Bilinear, Bicubic の SIMD 命令化 (SSE3 まで)。
-- 色反転、明るさ調節、ぼかし、モザイクの実装
+- 明るさ調節、ぼかしの実装
 
 ##Problem
 - (解決済み) アプリケーションが修了しない不具合。 (shared_ptr 化の影響？) Thanks to godai_0519

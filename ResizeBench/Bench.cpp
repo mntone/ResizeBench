@@ -11,6 +11,7 @@ Bench::Bench( HWND hWnd_ ):
 	// サンプル画像用意
 	i1.reset( new Rgb24Image( hWnd, 640, 480 ) );
 	i2.reset( new Rgb24Image( hWnd, 480, 360 ) );
+	i3.reset( new Rgb24Image( hWnd, 480, 360 ) );
 
 	// アプリケーション本体が動くスレッドの優先度を上げる
 	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_HIGHEST );
@@ -20,7 +21,7 @@ Bench::Bench( HWND hWnd_ ):
 }
 
 
-Bench::~Bench(void)
+Bench::~Bench( void )
 {
 	// デスクトップの HDC 解放
 	ReleaseDC( 0, deskhdc );
@@ -37,8 +38,9 @@ void Bench::Test( void )
 	BitBlt( i1->GetImageDC(), 0, 0, 640, 480, deskhdc, 0, 0, SRCCOPY );
 
 	i2->NearestNeighbor( i1.get() );
+	i3->Mozaic( 3, i2.get() );
 
-	BitBlt( hdc, 0, 20, 480, 360, i2->GetImageDC(), 0, 0, SRCCOPY );
+	BitBlt( hdc, 0, 20, 480, 360, i3->GetImageDC(), 0, 0, SRCCOPY );
 
 	return;
 }
@@ -46,7 +48,7 @@ void Bench::Test( void )
 void Bench::Test2( void )
 {
 	BitBlt( i1->GetImageDC(), 0, 0, 640, 480, deskhdc, 0, 0, SRCCOPY );
-
+	
 	i2->Bilinear1( i1.get() );
 
 	BitBlt( hdc, 360, 20, 480, 360, i2->GetImageDC(), 0, 0, SRCCOPY );

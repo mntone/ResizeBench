@@ -31,5 +31,7 @@ public:
 	void Bicubic1( Rgb24Image * );
 	bool FilpXY( bool, bool, Rgb24Image * );
 	bool Rotate90( Rgb24Image * );
+	bool InvNegaPosi( Rgb24Image * );
+	bool Mozaic( int, Rgb24Image *src );
 };
 

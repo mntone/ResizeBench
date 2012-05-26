@@ -5,7 +5,8 @@ Rgb24Image::Rgb24Image( HWND hWnd_, int width_, int height_ ):
 	hWnd( hWnd_ ),
 	width( width_ ),
 	height( height_ ),
-	lpPixel( NULL )
+	lpPixel( NULL ),
+	bmpi( NULL )
 {
 	// DIB の情報を用意
 	bmpi = new BITMAPINFO();
@@ -351,6 +352,8 @@ bool Rgb24Image::FilpXY( bool flipX, bool flipY, Rgb24Image *src )
 	else if( flipY )
 		for( h = 0; h < height; ++h )
 			memcpy( lpPixel + h * dl, *sp + ( height - h - 1 ) * dl, dl );
+
+	// どのフラグもついていなければ、コピー
 	else
 		Copy( src );
 
@@ -378,3 +381,74 @@ bool Rgb24Image::Rotate90( Rgb24Image *src )
 
 	return true;
 }
+
+
+// Inverse Negative-Positive
+bool Rgb24Image::InvNegaPosi( Rgb24Image *src )
+{
+	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
+	int sw = src->GetWidth();			// src の幅
+	int sh = src->GetHeight();			// src の高さ
+	int dl = 3 * width;					// dst の 1 列のビット長
+
+	// サイズが違うかチェック
+	if( sw != width || sh != height )
+		return false;
+
+	int w, h;
+	for( h = 0; h < height; ++h )
+		for( w = 0; w < dl; w += 3 )
+		{
+			lpPixel[h * dl + w    ] = ~( *sp )[h * dl + w    ];
+			lpPixel[h * dl + w + 1] = ~( *sp )[h * dl + w + 1];
+			lpPixel[h * dl + w + 2] = ~( *sp )[h * dl + w + 2];
+		}
+
+	return true;
+}
+
+
+// Mozaic
+bool Rgb24Image::Mozaic( int level, Rgb24Image *src )
+{
+	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
+	int sw = src->GetWidth();			// src の幅
+	int sh = src->GetHeight();			// src の高さ
+	int dl = 3 * width;					// dst の 1 列のビット長
+	int ll = 3 * level;					// level のビット長
+
+	// サイズが違うかチェック
+	if( sw != width || sh != height || level <= 1 )
+		return false;
+
+	BYTE colorbuf[2];
+	int w, h, i, j;
+	for( h = 0; h < height; h += level )
+		for( w = 0; w < dl; w += level * 3 )
+		{
+			colorbuf[0] = ( *sp )[h * dl + w    ];
+			colorbuf[1] = ( *sp )[h * dl + w + 1];
+			colorbuf[2] = ( *sp )[h * dl + w + 2];
+
+			for( j = 0; j < level; ++j )
+			{
+				// 範囲外チェック
+				if( h + j > height )
+					continue;
+
+				for( i = 0; i < ll; i += 3 )
+				{
+					// 範囲外チェック
+					if( w + i > dl )
+						continue;
+
+					lpPixel[( h + j ) * dl + w + i    ] = colorbuf[0];
+					lpPixel[( h + j ) * dl + w + i + 1] = colorbuf[1];
+					lpPixel[( h + j ) * dl + w + i + 2] = colorbuf[2];
+				}
+			}
+		}
+
+	return true;
+}
+
