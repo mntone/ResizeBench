@@ -5,10 +5,10 @@
 class Bench
 {
 protected:
-	HWND hWnd;
-	HDC  hdc, deskhdc;
+	HWND hWnd_;
+	HDC  hdc_, deskhdc_;
 	
-	std::unique_ptr<Rgb24Image> i1, i2, i3;
+	std::unique_ptr<Rgb24Image> i1_, i2_, i3_;
 
 public:
 	Bench( HWND hWnd );

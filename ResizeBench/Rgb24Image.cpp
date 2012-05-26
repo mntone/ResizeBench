@@ -1,55 +1,55 @@
 #include "StdAfx.h"
 #include "Rgb24Image.h"
 
-Rgb24Image::Rgb24Image( HWND hWnd_, int width_, int height_ ):
-	hWnd( hWnd_ ),
-	width( width_ ),
-	height( height_ ),
-	lpPixel( NULL ),
-	bmpi( NULL )
+Rgb24Image::Rgb24Image( HWND hWnd, int width, int height ):
+	hWnd_( hWnd ),
+	width_( width ),
+	height_( height ),
+	lpPixel_( NULL ),
+	bmpi_( NULL )
 {
 	// DIB の情報を用意
-	bmpi = new BITMAPINFO();
-	bmpi->bmiHeader.biSize = sizeof( BITMAPINFOHEADER );
-	bmpi->bmiHeader.biWidth = width;
-	bmpi->bmiHeader.biHeight = height;
-	bmpi->bmiHeader.biPlanes = 1;
-	bmpi->bmiHeader.biBitCount = 24;
-	bmpi->bmiHeader.biCompression = BI_RGB;
+	bmpi_ = new BITMAPINFO();
+	bmpi_->bmiHeader.biSize = sizeof( BITMAPINFOHEADER );
+	bmpi_->bmiHeader.biWidth = width;
+	bmpi_->bmiHeader.biHeight = height;
+	bmpi_->bmiHeader.biPlanes = 1;
+	bmpi_->bmiHeader.biBitCount = 24;
+	bmpi_->bmiHeader.biCompression = BI_RGB;
 
 	// HDC 取得
-	hdc = GetDC( hWnd );
+	hdc_ = GetDC( hWnd_ );
 
 	// DIBSection の作成
-	hBitmap = CreateDIBSection( hdc, bmpi, DIB_RGB_COLORS, reinterpret_cast<void **>( &lpPixel ), NULL, 0 );
-	hMemDC = CreateCompatibleDC( hdc );
-	SelectObject( hMemDC, hBitmap );
+	hBitmap_ = CreateDIBSection( hdc_, bmpi_, DIB_RGB_COLORS, reinterpret_cast<void **>( &lpPixel_ ), NULL, 0 );
+	hMemDC_ = CreateCompatibleDC( hdc_ );
+	SelectObject( hMemDC_, hBitmap_ );
 
 	// HDC 解放
-	ReleaseDC( hWnd, hdc );
-	hdc = NULL;
-	hWnd = NULL;
+	ReleaseDC( hWnd, hdc_ );
+	hdc_ = NULL;
+	hWnd_ = NULL;
 }
 
 
 Rgb24Image::~Rgb24Image( void )
 {
-	if( hMemDC )
+	if( hMemDC_ )
 	{
-		DeleteDC( hMemDC );
-		hMemDC = NULL;
+		DeleteDC( hMemDC_ );
+		hMemDC_ = NULL;
 	}
 
-	if( hBitmap )
+	if( hBitmap_ )
 	{
-		DeleteObject( hBitmap );
-		hBitmap = NULL;
+		DeleteObject( hBitmap_ );
+		hBitmap_ = NULL;
 	}
 
-	if( bmpi )
+	if( bmpi_ )
 	{
-		delete bmpi;
-		bmpi = NULL;
+		delete bmpi_;
+		bmpi_ = NULL;
 	}
 }
 
@@ -64,11 +64,11 @@ bool Rgb24Image::Copy( Rgb24Image *src )
 	int sh = src->GetHeight();			// src の高さ
 
 	// サイズが違うかチェック
-	if( sw != width || sh != height )
+	if( sw != width_ || sh != height_ )
 		return false;
 
 	// コピー
-	memcpy( lpPixel, *sp, 3 * width * height );
+	memcpy( lpPixel_, *sp, 3 * width_ * height_ );
 
 	return true;
 }
@@ -80,15 +80,15 @@ bool Rgb24Image::Trim( RECT rect, Rgb24Image *src )
 	int sw = src->GetWidth();			// src の幅
 	int sl = 3 * sw;					// src の 1 列のビット長
 	int sh = src->GetHeight();			// src の高さ
-	int dl = 3 * width;					// dst の 1 列のビット長
+	int dl = 3 * width_;				// dst の 1 列のビット長
 	int ll = 3 * rect.left;				// 垂直方向の trim の始点までのビット長
 
 	// サイズが違うかチェック
-	if( sw < rect.right || sh < rect.bottom || rect.right != width + rect.left || rect.bottom != height + rect.top  )
+	if( sw < rect.right || sh < rect.bottom || rect.right != width_ + rect.left || rect.bottom != height_ + rect.top  )
 		return false;
 
-	for( int h = 0; h < height; ++h )
-		memcpy( lpPixel + h * dl, *sp + ( rect.top + h ) * sl + ll, dl );
+	for( int h = 0; h < height_; ++h )
+		memcpy( lpPixel_ + h * dl, *sp + ( rect.top + h ) * sl + ll, dl );
 
 	return true;
 }
@@ -102,13 +102,13 @@ void Rgb24Image::NearestNeighbor( Rgb24Image *src )
 	int sw = src->GetWidth();			// src の幅
 	int sl = 3 * sw;					// src の 1 列のビット長
 	int sh = src->GetHeight();			// src の高さ
-	int dl = 3 * width;					// dst の 1 列のビット長
+	int dl = 3 * width_;				// dst の 1 列のビット長
 
-	double scalew = static_cast<double>( sw ) / static_cast<double>( width ) / 3.0;		// 拡大倍率 (1/3 倍)
-	double scaleh = static_cast<double>( sh ) / static_cast<double>( height );			// 拡大倍率
+	double scalew = static_cast<double>( sw ) / static_cast<double>( width_ ) / 3.0;	// 拡大倍率 (1/3 倍)
+	double scaleh = static_cast<double>( sh ) / static_cast<double>( height_ );			// 拡大倍率
 
 	int w, h, hxdl, y0xsl, x0, y0;		// ループ中で確保する一時変数
-	for( h = 0; h < height; ++h )
+	for( h = 0; h < height_; ++h )
 	{		
 		// src の基準点 (x0, y0) の y0 を求める
 		y0 = static_cast<int>( scaleh * h + 0.5 );
@@ -130,7 +130,7 @@ void Rgb24Image::NearestNeighbor( Rgb24Image *src )
 				x0 = sw - 1;
 			
 			// src の基準点 (x0, y0) を dst の点 (w, h) にコピー
-			memcpy( lpPixel + hxdl + w, *sp + y0xsl + 3 * x0, 3 );
+			memcpy( lpPixel_ + hxdl + w, *sp + y0xsl + 3 * x0, 3 );
 		}
 	}
 }
@@ -141,7 +141,7 @@ void Rgb24Image::NearestNeighbor( Rgb24Image *src )
 //      メモリアクセス回数が増えすぎて、余計遅くなるかも？
 //      （レツノバッテリー駆動で 15 sec → 16 sec 程度）
 //      メモリアクセスが遅い DDR2 世代だとさらに差が開くかも。
-void Rgb24Image::Bilinear1( Rgb24Image *src )
+void Rgb24Image::Bilinear( Rgb24Image *src )
 {
 	BYTE colorbuf[4];					// カラーバッファ
 	
@@ -149,14 +149,14 @@ void Rgb24Image::Bilinear1( Rgb24Image *src )
 	int sw = src->GetWidth();			// src の幅
 	int sl = 3 * sw;					// src の 1 列のビット長
 	int sh = src->GetHeight();			// src の高さ
-	int dl = 3 * width;					// dst の 1 列のビット長
+	int dl = 3 * width_;				// dst の 1 列のビット長
 	
-	double scalew = static_cast<double>( sw ) / static_cast<double>( width ) / 3.0;		// 拡大倍率 (1/3 倍)
-	double scaleh = static_cast<double>( sh ) / static_cast<double>( height );			// 拡大倍率
+	double scalew = static_cast<double>( sw ) / static_cast<double>( width_ ) / 3.0;	// 拡大倍率 (1/3 倍)
+	double scaleh = static_cast<double>( sh ) / static_cast<double>( height_ );			// 拡大倍率
 
 	int w, h, i, x0, y0;
 	double x, y;
-	for( h = 0; h < height; ++h )
+	for( h = 0; h < height_; ++h )
 	{
 		// src の基準場所 (x, y) の y を求める
 		y = scaleh * h;
@@ -194,7 +194,7 @@ void Rgb24Image::Bilinear1( Rgb24Image *src )
 				colorbuf[2] = ( *sp )[( y0 + 1 ) * sl + 3 * ( x0     ) + i];
 				colorbuf[3] = ( *sp )[( y0 + 1 ) * sl + 3 * ( x0 + 1 ) + i];
                                 
-				lpPixel[h * dl + w + i] = ( BYTE )( ( 1.0 - x ) * ( 1.0 - y ) * colorbuf[0]	+ x * ( 1.0 - y ) * colorbuf[1]
+				lpPixel_[h * dl + w + i] = ( BYTE )( ( 1.0 - x ) * ( 1.0 - y ) * colorbuf[0] + x * ( 1.0 - y ) * colorbuf[1]
 					+ ( 1.0 - x ) * y * colorbuf[2] + x * y * colorbuf[3] + 0.5 );
 			}
 		}
@@ -203,7 +203,7 @@ void Rgb24Image::Bilinear1( Rgb24Image *src )
 
 
 // Bicubic
-void Rgb24Image::Bicubic1( Rgb24Image *src )
+void Rgb24Image::Bicubic( Rgb24Image *src )
 {
 	double colorbuf[3];					// カラーバッファ
 	
@@ -211,14 +211,14 @@ void Rgb24Image::Bicubic1( Rgb24Image *src )
 	int sw = src->GetWidth();			// src の幅
 	int sl = 3 * sw;					// src の 1 列のビット長
 	int sh = src->GetHeight();			// src の高さ
-	int dl = 3 * width;					// dst の 1 列のビット長
+	int dl = 3 * width_;				// dst の 1 列のビット長
 	
-	double scalew = static_cast<double>( sw ) / static_cast<double>( width ) / 3.0;		// 拡大倍率 (1/3 倍)
-	double scaleh = static_cast<double>( sh ) / static_cast<double>( height );			// 拡大倍率
+	double scalew = static_cast<double>( sw ) / static_cast<double>( width_ ) / 3.0;	// 拡大倍率 (1/3 倍)
+	double scaleh = static_cast<double>( sh ) / static_cast<double>( height_ );			// 拡大倍率
 
 	int w, h, i, j, x0, y0, mx, my;
 	double x, y, wx, wy, dx, dy;
-	for( h = 0; h < height; ++h )
+	for( h = 0; h < height_; ++h )
 	{
 		// src の基準場所 (x, y) の y を求める
 		y = scaleh * h;
@@ -312,9 +312,9 @@ void Rgb24Image::Bicubic1( Rgb24Image *src )
 				colorbuf[2] = 254.9;
 
 			// 格納
-			lpPixel[h * dl + w    ] = static_cast<int>( colorbuf[0] + 0.5 );
-			lpPixel[h * dl + w + 1] = static_cast<int>( colorbuf[1] + 0.5 );
-			lpPixel[h * dl + w + 2] = static_cast<int>( colorbuf[2] + 0.5 );
+			lpPixel_[h * dl + w    ] = static_cast<int>( colorbuf[0] + 0.5 );
+			lpPixel_[h * dl + w + 1] = static_cast<int>( colorbuf[1] + 0.5 );
+			lpPixel_[h * dl + w + 2] = static_cast<int>( colorbuf[2] + 0.5 );
 		}
 	}
 }
@@ -325,12 +325,10 @@ void Rgb24Image::Bicubic1( Rgb24Image *src )
 bool Rgb24Image::FilpXY( bool flipX, bool flipY, Rgb24Image *src )
 {
 	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
-	int sw = src->GetWidth();			// src の幅
-	int sh = src->GetHeight();			// src の高さ
-	int dl = 3 * width;					// dst の 1 列のビット長
+	int dl = 3 * width_;				// dst の 1 列のビット長
 
 	// サイズが違うかチェック
-	if( sw != width || sh != height )
+	if( src->GetWidth() != width_ || src->GetHeight() != height_ )
 		return false;
 
 	// 処理速度を高速化するために、ループ外で条件分岐
@@ -338,24 +336,24 @@ bool Rgb24Image::FilpXY( bool flipX, bool flipY, Rgb24Image *src )
 
 	// 上下左右反転
 	if( flipX && flipY )
-		for( h = 0; h < height; ++h )
+		for( h = 0; h < height_; ++h )
 			for( w = 0; w < dl; w += 3 )
-				memcpy( lpPixel + h * dl + w, *sp + ( height - h - 1 ) * dl + ( dl - w - 3 ), 3 );
+				memcpy( lpPixel_ + h * dl + w, *sp + ( height_ - h - 1 ) * dl + ( dl - w - 3 ), 3 );
 
 	// 左右反転
 	else if( flipX )
-		for( h = 0; h < height; ++h )
+		for( h = 0; h < height_; ++h )
 			for( w = 0; w < dl; w += 3 )
-				memcpy( lpPixel + h * dl + w, *sp + h * dl + ( dl - w - 3 ), 3 );
+				memcpy( lpPixel_ + h * dl + w, *sp + h * dl + ( dl - w - 3 ), 3 );
 
 	// 上下反転
 	else if( flipY )
-		for( h = 0; h < height; ++h )
-			memcpy( lpPixel + h * dl, *sp + ( height - h - 1 ) * dl, dl );
+		for( h = 0; h < height_; ++h )
+			memcpy( lpPixel_ + h * dl, *sp + ( height_ - h - 1 ) * dl, dl );
 
 	// どのフラグもついていなければ、コピー
 	else
-		Copy( src );
+		return Copy( src );
 
 	return true;
 }
@@ -368,16 +366,16 @@ bool Rgb24Image::Rotate90( Rgb24Image *src )
 	int sw = src->GetWidth();			// src の幅
 	int sl = 3 * sw;					// src の 1 列のビット長
 	int sh = src->GetHeight();			// src の高さ
-	int dl = 3 * width;					// dst の 1 列のビット長
+	int dl = 3 * width_;				// dst の 1 列のビット長
 
 	// サイズが違うかチェック
-	if( sw != height || sh != width )
+	if( sw != height_ || sh != width_ )
 		return false;
 
 	int w, h;
-	for( h = 0; h < height; ++h )
-		for( w = 0; w < width; ++w )
-			memcpy( lpPixel + h * dl + 3 * w, *sp + w * sl + 3 * ( height - h - 1 ), 3 );
+	for( h = 0; h < height_; ++h )
+		for( w = 0; w < width_; ++w )
+			memcpy( lpPixel_ + h * dl + 3 * w, *sp + w * sl + 3 * ( height_ - h - 1 ), 3 );
 
 	return true;
 }
@@ -387,21 +385,19 @@ bool Rgb24Image::Rotate90( Rgb24Image *src )
 bool Rgb24Image::InvNegaPosi( Rgb24Image *src )
 {
 	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
-	int sw = src->GetWidth();			// src の幅
-	int sh = src->GetHeight();			// src の高さ
-	int dl = 3 * width;					// dst の 1 列のビット長
+	int dl = 3 * width_;				// dst の 1 列のビット長
 
 	// サイズが違うかチェック
-	if( sw != width || sh != height )
+	if( src->GetWidth() != width_ || src->GetHeight() != height_ )
 		return false;
 
 	int w, h;
-	for( h = 0; h < height; ++h )
+	for( h = 0; h < height_; ++h )
 		for( w = 0; w < dl; w += 3 )
 		{
-			lpPixel[h * dl + w    ] = ~( *sp )[h * dl + w    ];
-			lpPixel[h * dl + w + 1] = ~( *sp )[h * dl + w + 1];
-			lpPixel[h * dl + w + 2] = ~( *sp )[h * dl + w + 2];
+			lpPixel_[h * dl + w    ] = ~( *sp )[h * dl + w    ];
+			lpPixel_[h * dl + w + 1] = ~( *sp )[h * dl + w + 1];
+			lpPixel_[h * dl + w + 2] = ~( *sp )[h * dl + w + 2];
 		}
 
 	return true;
@@ -414,16 +410,20 @@ bool Rgb24Image::Mozaic( int level, Rgb24Image *src )
 	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
 	int sw = src->GetWidth();			// src の幅
 	int sh = src->GetHeight();			// src の高さ
-	int dl = 3 * width;					// dst の 1 列のビット長
+	int dl = 3 * width_;				// dst の 1 列のビット長
 	int ll = 3 * level;					// level のビット長
 
 	// サイズが違うかチェック
-	if( sw != width || sh != height || level <= 1 )
+	if( sw != width_ || sh != height_ )
 		return false;
+
+	// レベルが 1 より小ならコピー
+	if( level <= 1 )
+		return Copy( src );
 
 	BYTE colorbuf[2];
 	int w, h, i, j;
-	for( h = 0; h < height; h += level )
+	for( h = 0; h < height_; h += level )
 		for( w = 0; w < dl; w += level * 3 )
 		{
 			colorbuf[0] = ( *sp )[h * dl + w    ];
@@ -433,7 +433,7 @@ bool Rgb24Image::Mozaic( int level, Rgb24Image *src )
 			for( j = 0; j < level; ++j )
 			{
 				// 範囲外チェック
-				if( h + j > height )
+				if( h + j > height_ )
 					continue;
 
 				for( i = 0; i < ll; i += 3 )
@@ -442,10 +442,63 @@ bool Rgb24Image::Mozaic( int level, Rgb24Image *src )
 					if( w + i > dl )
 						continue;
 
-					lpPixel[( h + j ) * dl + w + i    ] = colorbuf[0];
-					lpPixel[( h + j ) * dl + w + i + 1] = colorbuf[1];
-					lpPixel[( h + j ) * dl + w + i + 2] = colorbuf[2];
+					lpPixel_[( h + j ) * dl + w + i    ] = colorbuf[0];
+					lpPixel_[( h + j ) * dl + w + i + 1] = colorbuf[1];
+					lpPixel_[( h + j ) * dl + w + i + 2] = colorbuf[2];
 				}
+			}
+		}
+
+	return true;
+}
+
+
+// Blur
+bool Rgb24Image::Blur( int level, Rgb24Image *src )
+{
+	LPBYTE *sp = src->GetPixel();		// src の LPBYTE のポインタ
+	int sw = src->GetWidth();			// src の幅
+	int sh = src->GetHeight();			// src の高さ
+	int dl = 3 * width_;				// dst の 1 列のビット長
+	int ll = 3 * level;					// level のビット長
+
+	// サイズが違うかチェック
+	if( sw != width_ || sh != height_ || level < 1 )
+		return false;
+
+	int w, h, i, j;
+	double colorbuf[2], p;
+	for( h = 0; h < height_; ++h )
+		for( w = 0; w < dl; w += 3 )
+		{
+			p = 0.0;
+			colorbuf[0] = colorbuf[1] = colorbuf[2] = 0.0;
+			for( j = -level; j < level; ++j )
+			{
+				// 範囲外チェック
+				if( h + j < 0 || h + j > height_ )
+					continue;
+
+				for( i = -ll; i < ll; i += 3 )
+				{
+					// 範囲外チェック
+					if( w + i < 0 || w + i > dl || abs( i * j / 3 ) >= level )
+						continue;
+
+					// 足し合わせる
+					colorbuf[0] += ( *sp )[( h + j ) * dl + w + i    ];
+					colorbuf[1] += ( *sp )[( h + j ) * dl + w + i + 1];
+					colorbuf[2] += ( *sp )[( h + j ) * dl + w + i + 2];
+					p += 1.0;
+				}
+			}
+			
+			// 結果を出力
+			if( p != 0.0 )
+			{
+				lpPixel_[h * dl + w    ] = static_cast<BYTE>( colorbuf[0] / p );
+				lpPixel_[h * dl + w + 1] = static_cast<BYTE>( colorbuf[1] / p );
+				lpPixel_[h * dl + w + 2] = static_cast<BYTE>( colorbuf[2] / p );
 			}
 		}
 

@@ -5,33 +5,34 @@
 class Rgb24Image sealed
 {
 protected:
-	HWND hWnd;
-	HDC hdc, hMemDC;
-	HBITMAP hBitmap;
+	HWND hWnd_;
+	HDC hdc_, hMemDC_;
+	HBITMAP hBitmap_;
 
-	const int width;
-	const int height;
-	LPBITMAPINFO bmpi;
-	LPBYTE lpPixel;
+	const int width_;
+	const int height_;
+	LPBITMAPINFO bmpi_;
+	LPBYTE lpPixel_;
 
 public:
 	Rgb24Image( HWND, int, int );
 	~Rgb24Image( void );
 
-	int GetWidth( void ){ return width; };
-	int GetHeight( void ){ return height; };
+	int GetWidth( void ){ return width_; };
+	int GetHeight( void ){ return height_; };
 
-	HDC GetImageDC( void ){ return hMemDC; };
-	LPBYTE *GetPixel( void ){ return &lpPixel; };
+	HDC GetImageDC( void ){ return hMemDC_; };
+	LPBYTE *GetPixel( void ){ return &lpPixel_; };
 
 	bool Copy( Rgb24Image * );
 	bool Trim( RECT rect, Rgb24Image * );
 	void NearestNeighbor( Rgb24Image * );
-	void Bilinear1( Rgb24Image * );
-	void Bicubic1( Rgb24Image * );
+	void Bilinear( Rgb24Image * );
+	void Bicubic( Rgb24Image * );
 	bool FilpXY( bool, bool, Rgb24Image * );
 	bool Rotate90( Rgb24Image * );
 	bool InvNegaPosi( Rgb24Image * );
 	bool Mozaic( int, Rgb24Image *src );
+	bool Blur( int, Rgb24Image *src );
 };
 
