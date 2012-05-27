@@ -141,8 +141,6 @@ void Rgb24Image::NearestNeighbor( Rgb24Image *src )
 //      メモリアクセスが遅い DDR2 世代だとさらに差が開くかも。
 void Rgb24Image::Bilinear( Rgb24Image *src )
 {
-	BYTE colorbuf[4];					// カラーバッファ
-	
 	const LPBYTE sp = src->GetPixel();	// src の LPBYTE のポインタ
 	const int sw = src->GetWidth();		// src の幅
 	const int sl = 3 * sw;				// src の 1 列のビット長
@@ -154,6 +152,7 @@ void Rgb24Image::Bilinear( Rgb24Image *src )
 
 	int w, h, i, x0, y0;
 	double x, y;
+	BYTE colorbuf[4];
 	for( h = 0; h < height_; ++h )
 	{
 		// src の基準場所 (x, y) の y を求める
