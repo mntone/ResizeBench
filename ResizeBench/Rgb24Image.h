@@ -18,11 +18,11 @@ public:
 	Rgb24Image( HWND, int, int );
 	~Rgb24Image( void );
 
-	int GetWidth( void ){ return width_; };
-	int GetHeight( void ){ return height_; };
+	const int GetWidth( void ) const{ return width_; };
+	const int GetHeight( void ) const{ return height_; };
 
 	HDC GetImageDC( void ){ return hMemDC_; };
-	LPBYTE *GetPixel( void ){ return &lpPixel_; };
+	const LPBYTE GetPixel( void ) const{ return lpPixel_; };
 
 	bool Copy( Rgb24Image * );
 	bool Trim( RECT rect, Rgb24Image * );
