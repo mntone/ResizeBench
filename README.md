@@ -8,7 +8,7 @@
 
 なお、MIT License を適応します。自由に使ってください。(Apache License, Version 2.0 から変更しました)
 
-、VS 2010 で開発動作することを念頭にしています。
+VS 2010 で開発動作することを念頭にしています。
 
 
 ##Rule
@@ -39,7 +39,7 @@
 
 This program take the benchmark for the resize and try to realize speedy program.
 
-*Please evaluate Rgb24Image.cpp.*
+**Please evaluate Rgb24Image.cpp.**
   I request easy to read and fast program.
   If you have opinion(s), you contact me (Twitter @mntone).
 

@@ -77,12 +77,12 @@ bool Rgb24Image::Trim( RECT rect, Rgb24Image *src )
 	const LPBYTE sp = src->GetPixel();	// src の LPBYTE のポインタ
 	const int sw = src->GetWidth();		// src の幅
 	const int sl = 3 * sw;				// src の 1 列のビット長
-	const int sh = src->GetHeight();		// src の高さ
-	int dl = 3 * width_;				// dst の 1 列のビット長
-	int ll = 3 * rect.left;				// 垂直方向の trim の始点までのビット長
+	const int dl = 3 * width_;			// dst の 1 列のビット長
+	const int ll = 3 * rect.left;		// 垂直方向の trim の始点までのビット長
 
 	// サイズが違うかチェック
-	if( sw < rect.right || sh < rect.bottom || rect.right != width_ + rect.left || rect.bottom != height_ + rect.top  )
+	if( sw < rect.right || src->GetHeight() < rect.bottom
+		|| rect.right != width_ + rect.left || rect.bottom != height_ + rect.top  )
 		return false;
 
 	for( int h = 0; h < height_; ++h )
@@ -100,10 +100,10 @@ void Rgb24Image::NearestNeighbor( Rgb24Image *src )
 	const int sw = src->GetWidth();		// src の幅
 	const int sl = 3 * sw;				// src の 1 列のビット長
 	const int sh = src->GetHeight();		// src の高さ
-	int dl = 3 * width_;				// dst の 1 列のビット長
+	const int dl = 3 * width_;			// dst の 1 列のビット長
 
-	double scalew = static_cast<double>( sw ) / static_cast<double>( width_ ) / 3.0;	// 拡大倍率 (1/3 倍)
-	double scaleh = static_cast<double>( sh ) / static_cast<double>( height_ );			// 拡大倍率
+	const double scalew = static_cast<double>( sw ) / static_cast<double>( width_ ) / 3.0;	// 拡大倍率 (1/3 倍)
+	const double scaleh = static_cast<double>( sh ) / static_cast<double>( height_ );		// 拡大倍率
 
 	int w, h, hxdl, y0xsl, x0, y0;		// ループ中で確保する一時変数
 	for( h = 0; h < height_; ++h )
@@ -135,20 +135,16 @@ void Rgb24Image::NearestNeighbor( Rgb24Image *src )
 
 
 // Bilinear
-//   1. s00, s01, s10, s11 と予めポインタの座標を計算した場合、
-//      メモリアクセス回数が増えすぎて、余計遅くなるかも？
-//      （レツノバッテリー駆動で 15 sec → 16 sec 程度）
-//      メモリアクセスが遅い DDR2 世代だとさらに差が開くかも。
 void Rgb24Image::Bilinear( Rgb24Image *src )
 {
 	const LPBYTE sp = src->GetPixel();	// src の LPBYTE のポインタ
 	const int sw = src->GetWidth();		// src の幅
 	const int sl = 3 * sw;				// src の 1 列のビット長
 	const int sh = src->GetHeight();		// src の高さ
-	int dl = 3 * width_;				// dst の 1 列のビット長
+	const int dl = 3 * width_;			// dst の 1 列のビット長
 	
-	double scalew = static_cast<double>( sw ) / static_cast<double>( width_ ) / 3.0;	// 拡大倍率 (1/3 倍)
-	double scaleh = static_cast<double>( sh ) / static_cast<double>( height_ );			// 拡大倍率
+	const double scalew = static_cast<double>( sw ) / static_cast<double>( width_ ) / 3.0;	// 拡大倍率 (1/3 倍)
+	const double scaleh = static_cast<double>( sh ) / static_cast<double>( height_ );		// 拡大倍率
 
 	int w, h, i, x0, y0;
 	double x, y;
@@ -206,10 +202,10 @@ void Rgb24Image::Bicubic( Rgb24Image *src )
 	const int sw = src->GetWidth();		// src の幅
 	const int sl = 3 * sw;				// src の 1 列のビット長
 	const int sh = src->GetHeight();		// src の高さ
-	int dl = 3 * width_;				// dst の 1 列のビット長
+	const int dl = 3 * width_;			// dst の 1 列のビット長
 	
-	double scalew = static_cast<double>( sw ) / static_cast<double>( width_ ) / 3.0;	// 拡大倍率 (1/3 倍)
-	double scaleh = static_cast<double>( sh ) / static_cast<double>( height_ );			// 拡大倍率
+	const double scalew = static_cast<double>( sw ) / static_cast<double>( width_ ) / 3.0;	// 拡大倍率 (1/3 倍)
+	const double scaleh = static_cast<double>( sh ) / static_cast<double>( height_ );		// 拡大倍率
 
 	int w, h, i, j, x0, y0, mx, my;
 	double x, y, wx, wy, dx, dy, colorbuf[3];
@@ -320,7 +316,7 @@ void Rgb24Image::Bicubic( Rgb24Image *src )
 bool Rgb24Image::FilpXY( bool flipX, bool flipY, Rgb24Image *src )
 {
 	const LPBYTE sp = src->GetPixel();	// src の LPBYTE のポインタ
-	int dl = 3 * width_;				// dst の 1 列のビット長
+	const int dl = 3 * width_;			// dst の 1 列のビット長
 
 	// サイズが違うかチェック
 	if( src->GetWidth() != width_ || src->GetHeight() != height_ )
@@ -361,7 +357,7 @@ bool Rgb24Image::Rotate90( Rgb24Image *src )
 	const int sw = src->GetWidth();		// src の幅
 	const int sl = 3 * sw;				// src の 1 列のビット長
 	const int sh = src->GetHeight();		// src の高さ
-	int dl = 3 * width_;				// dst の 1 列のビット長
+	const int dl = 3 * width_;			// dst の 1 列のビット長
 
 	// サイズが違うかチェック
 	if( sw != height_ || sh != width_ )
@@ -380,7 +376,7 @@ bool Rgb24Image::Rotate90( Rgb24Image *src )
 bool Rgb24Image::InvNegaPosi( Rgb24Image *src )
 {
 	const LPBYTE sp = src->GetPixel();	// src の LPBYTE のポインタ
-	int dl = 3 * width_;				// dst の 1 列のビット長
+	const int dl = 3 * width_;			// dst の 1 列のビット長
 
 	// サイズが違うかチェック
 	if( src->GetWidth() != width_ || src->GetHeight() != height_ )
@@ -400,11 +396,11 @@ bool Rgb24Image::InvNegaPosi( Rgb24Image *src )
 
 
 // Mozaic
-bool Rgb24Image::Mozaic( int level, Rgb24Image *src )
+bool Rgb24Image::Mozaic( const int level, Rgb24Image *src )
 {
 	const LPBYTE sp = src->GetPixel();	// src の LPBYTE のポインタ
-	int dl = 3 * width_;				// dst の 1 列のビット長
-	int ll = 3 * level;					// level のビット長
+	const int dl = 3 * width_;			// dst の 1 列のビット長
+	const int ll = 3 * level;			// level のビット長
 
 	// サイズが違うかチェック
 	if( src->GetWidth() != width_ || src->GetHeight() != height_ )
@@ -447,11 +443,11 @@ bool Rgb24Image::Mozaic( int level, Rgb24Image *src )
 
 
 // Blur
-bool Rgb24Image::Blur( int level, Rgb24Image *src )
+bool Rgb24Image::Blur( const int level, Rgb24Image *src )
 {
 	const LPBYTE sp = src->GetPixel();	// src の LPBYTE のポインタ
-	int dl = 3 * width_;				// dst の 1 列のビット長
-	int ll = 3 * level;					// level のビット長
+	const int dl = 3 * width_;			// dst の 1 列のビット長
+	const int ll = 3 * level;			// level のビット長
 
 	// サイズが違うかチェック
 	if( src->GetWidth() != width_ || src->GetHeight() != height_ || level < 1 )

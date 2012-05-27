@@ -21,7 +21,7 @@ public:
 	const int& GetWidth( void ) const{ return width_; };
 	const int& GetHeight( void ) const{ return height_; };
 
-	const HDC& GetImageDC( void ){ return hMemDC_; };
+	const HDC& GetImageDC( void ) const{ return hMemDC_; };
 	const LPBYTE& GetPixel( void ) const{ return lpPixel_; };
 
 	bool Copy( Rgb24Image * );
@@ -32,7 +32,7 @@ public:
 	bool FilpXY( bool, bool, Rgb24Image * );
 	bool Rotate90( Rgb24Image * );
 	bool InvNegaPosi( Rgb24Image * );
-	bool Mozaic( int, Rgb24Image *src );
-	bool Blur( int, Rgb24Image *src );
+	bool Mozaic( const int, Rgb24Image *src );
+	bool Blur( const int, Rgb24Image *src );
 };
 
