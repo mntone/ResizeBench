@@ -21,55 +21,50 @@ bool     initialized;
 Bench *bench;
 
 // このコード モジュールに含まれる関数の宣言を転送します:
-ATOM				MyRegisterClass(HINSTANCE hInstance);
-BOOL				InitInstance(HINSTANCE, int);
-LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
+ATOM				MyRegisterClass( HINSTANCE hInstance );
+BOOL				InitInstance( HINSTANCE, int );
+LRESULT CALLBACK	WndProc( HWND, UINT, WPARAM, LPARAM );
+INT_PTR CALLBACK	About( HWND, UINT, WPARAM, LPARAM );
 
 void SetTimer( HWND hWnd );
 HRESULT ClearTimer( void );
 #if X86-64
-void CALLBACK TimerProc( UINT uId, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2 );
+void CALLBACK TimerProc( UINT, UINT, DWORD_PTR, DWORD_PTR, DWORD_PTR );
 #else
-void CALLBACK TimerProc( UINT uId, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2 );
+void CALLBACK TimerProc( UINT, UINT, DWORD, DWORD, DWORD );
 #endif
 
-int APIENTRY _tWinMain(HINSTANCE hInstance,
-                     HINSTANCE hPrevInstance,
-                     LPTSTR    lpCmdLine,
-                     int       nCmdShow)
+int APIENTRY _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow )
 {
-	UNREFERENCED_PARAMETER(hPrevInstance);
-	UNREFERENCED_PARAMETER(lpCmdLine);
+	UNREFERENCED_PARAMETER( hPrevInstance );
+	UNREFERENCED_PARAMETER( lpCmdLine );
 
  	// TODO: ここにコードを挿入してください。
 	MSG msg;
 	HACCEL hAccelTable;
 
 	// グローバル文字列を初期化しています。
-	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	LoadString(hInstance, IDC_RESIZEBENCH, szWindowClass, MAX_LOADSTRING);
-	MyRegisterClass(hInstance);
+	LoadString( hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING );
+	LoadString( hInstance, IDC_RESIZEBENCH, szWindowClass, MAX_LOADSTRING );
+	MyRegisterClass( hInstance );
 
 	// アプリケーションの初期化を実行します:
-	if (!InitInstance (hInstance, nCmdShow))
-	{
+	if( !InitInstance( hInstance, nCmdShow ) )
 		return FALSE;
-	}
 
-	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_RESIZEBENCH));
+	hAccelTable = LoadAccelerators( hInstance, MAKEINTRESOURCE( IDC_RESIZEBENCH ) );
 
 	// メイン メッセージ ループ:
-	while (GetMessage(&msg, NULL, 0, 0))
+	while( GetMessage( &msg, NULL, 0, 0 ) )
 	{
-		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+		if( !TranslateAccelerator( msg.hwnd, hAccelTable, &msg ) )
 		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
 		}
 	}
 
-	return (int) msg.wParam;
+	return static_cast<int>( msg.wParam );
 }
 
 
@@ -91,21 +86,21 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 {
 	WNDCLASSEX wcex;
 
-	wcex.cbSize = sizeof(WNDCLASSEX);
+	wcex.cbSize = sizeof( WNDCLASSEX );
 
 	wcex.style			= CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc	= WndProc;
 	wcex.cbClsExtra		= 0;
 	wcex.cbWndExtra		= 0;
 	wcex.hInstance		= hInstance;
-	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_RESIZEBENCH));
-	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
-	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_RESIZEBENCH);
+	wcex.hIcon			= LoadIcon( hInstance, MAKEINTRESOURCE( IDI_RESIZEBENCH ) );
+	wcex.hCursor		= LoadCursor( NULL, IDC_ARROW);
+	wcex.hbrBackground	= reinterpret_cast<HBRUSH>( COLOR_WINDOW + 1 );
+	wcex.lpszMenuName	= MAKEINTRESOURCE( IDC_RESIZEBENCH );
 	wcex.lpszClassName	= szWindowClass;
-	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	wcex.hIconSm		= LoadIcon( wcex.hInstance, MAKEINTRESOURCE( IDI_SMALL ) );
 
-	return RegisterClassEx(&wcex);
+	return RegisterClassEx( &wcex );
 }
 
 //
@@ -118,24 +113,22 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //        この関数で、グローバル変数でインスタンス ハンドルを保存し、
 //        メイン プログラム ウィンドウを作成および表示します。
 //
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+BOOL InitInstance( HINSTANCE hInstance, int nCmdShow )
 {
-   HWND hWnd;
+	HWND hWnd;
 
-   hInst = hInstance; // グローバル変数にインスタンス処理を格納します。
+	hInst = hInstance; // グローバル変数にインスタンス処理を格納します。
 
-   hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, 3*360+20, 60+360+20, NULL, NULL, hInstance, NULL);
+	hWnd = CreateWindow( szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, 0, 3*360+20, 60+360+20, NULL, NULL, hInstance, NULL );
 
-   if (!hWnd)
-   {
-      return FALSE;
-   }
+	if( !hWnd )
+		return FALSE;
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
-
-   return TRUE;
+	ShowWindow(hWnd, nCmdShow);
+	UpdateWindow(hWnd);
+	
+	return TRUE;
 }
 
 //
@@ -148,14 +141,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY	- 中止メッセージを表示して戻る
 //
 //
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
 	HDC hdc;
 	int a, b, c;
 
-	switch (message)
+	switch( message )
 	{
 	case WM_CREATE:
 		bench = new Bench( hWnd );
@@ -199,11 +192,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 
 			wchar_t str[100];
-			swprintf( str, L"%.2f ms", a / 100.0 );
+			swprintf_s( str, L"%.2f ms", a / 100.0 );
 			TextOut( hdc, 0 + 280, 0, str, wcslen( str ) );
-			swprintf( str, L"%.2f ms", b / 100.0 );
+			swprintf_s( str, L"%.2f ms", b / 100.0 );
 			TextOut( hdc, 360 + 280, 0, str, wcslen( str ) );
-			swprintf( str, L"%.2f ms", c / 100.0 );
+			swprintf_s( str, L"%.2f ms", c / 100.0 );
 			TextOut( hdc, 720 + 280, 0, str, wcslen( str ) );
 			ReleaseDC( hWnd, hdc );
 			break;
@@ -230,32 +223,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_DESTROY:
 		delete bench;
-		PostQuitMessage(0);
+		PostQuitMessage( 0 );
 		break;
+
 	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
+		return DefWindowProc( hWnd, message, wParam, lParam );
 	}
 	return 0;
 }
 
 // バージョン情報ボックスのメッセージ ハンドラーです。
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK About( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam )
 {
-	UNREFERENCED_PARAMETER(lParam);
-	switch (message)
+	UNREFERENCED_PARAMETER( lParam );
+	switch( message )
 	{
 	case WM_INITDIALOG:
-		return (INT_PTR)TRUE;
+		return static_cast<INT_PTR>( TRUE );
 
 	case WM_COMMAND:
-		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+		if( LOWORD( wParam ) == IDOK || LOWORD( wParam ) == IDCANCEL )
 		{
-			EndDialog(hDlg, LOWORD(wParam));
-			return (INT_PTR)TRUE;
+			EndDialog( hDlg, LOWORD( wParam ) );
+			return static_cast<INT_PTR>( TRUE );
 		}
 		break;
 	}
-	return (INT_PTR)FALSE;
+	return static_cast<INT_PTR>( FALSE );
 }
 
 

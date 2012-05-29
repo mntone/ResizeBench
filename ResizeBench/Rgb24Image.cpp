@@ -1,8 +1,8 @@
 #include "StdAfx.h"
 #include "Rgb24Image.h"
 
-Rgb24Image::Rgb24Image( HWND hWnd, int width, int height ):
-	hWnd_( hWnd ),
+Rgb24Image::Rgb24Image( int width, int height ):
+	hMemDC_( NULL ),
 	width_( width ),
 	height_( height ),
 	lpPixel_( NULL ),
@@ -18,17 +18,15 @@ Rgb24Image::Rgb24Image( HWND hWnd, int width, int height ):
 	bmpi_->bmiHeader.biCompression = BI_RGB;
 
 	// HDC æ“¾
-	hdc_ = GetDC( hWnd_ );
+	HDC hdc = GetDC( 0 );
 
 	// DIBSection ‚Ìì¬
-	hBitmap_ = CreateDIBSection( hdc_, bmpi_, DIB_RGB_COLORS, reinterpret_cast<void **>( &lpPixel_ ), NULL, 0 );
-	hMemDC_ = CreateCompatibleDC( hdc_ );
+	hBitmap_ = CreateDIBSection( hdc, bmpi_, DIB_RGB_COLORS, reinterpret_cast<void **>( &lpPixel_ ), NULL, 0 );
+	hMemDC_ = CreateCompatibleDC( hdc );
 	SelectObject( hMemDC_, hBitmap_ );
 
 	// HDC ‰ğ•ú
-	ReleaseDC( hWnd, hdc_ );
-	hdc_ = NULL;
-	hWnd_ = NULL;
+	ReleaseDC( 0, hdc );
 }
 
 
@@ -90,6 +88,7 @@ bool Rgb24Image::Trim( RECT rect, Rgb24Image *src )
 
 	return true;
 }
+
 
 // NearestNeighbor
 // [todo] scaleh * h ‚ğŠ|‚¯Z‚µ‚Ä‹‚ß‚é‚Ì‚Å‚Í‚È‚­A‘«‚µZ‚Å‹‚ß‚é‚Ù‚¤‚ª‚¢‚¢?
@@ -454,7 +453,7 @@ bool Rgb24Image::Blur( const int level, Rgb24Image *src )
 		return false;
 
 	int w, h, i, j;
-	double colorbuf[2], p;
+	double colorbuf[3], p;
 	for( h = 0; h < height_; ++h )
 		for( w = 0; w < dl; w += 3 )
 		{

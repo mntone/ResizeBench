@@ -2,11 +2,10 @@
 
 #include "stdafx.h"
 
-class Rgb24Image sealed
+class Rgb24Image
 {
 protected:
-	HWND hWnd_;
-	HDC hdc_, hMemDC_;
+	HDC hMemDC_;
 	HBITMAP hBitmap_;
 
 	const int width_;
@@ -15,7 +14,7 @@ protected:
 	LPBYTE lpPixel_;
 
 public:
-	Rgb24Image( HWND, int, int );
+	Rgb24Image( int, int );
 	~Rgb24Image( void );
 
 	const int& GetWidth( void ) const{ return width_; };

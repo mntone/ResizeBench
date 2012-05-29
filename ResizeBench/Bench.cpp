@@ -9,9 +9,9 @@ Bench::Bench( HWND hWnd ):
 	hdc_ = GetDC( hWnd_ );
 
 	// サンプル画像用意
-	i1_.reset( new Rgb24Image( hWnd_, 640, 480 ) );
-	i2_.reset( new Rgb24Image( hWnd_, 480, 360 ) );
-	i3_.reset( new Rgb24Image( hWnd_, 480, 360 ) );
+	i1_.reset( new Rgb24Image( 640, 480 ) );
+	i2_.reset( new Rgb24Image( 480, 360 ) );
+	i3_.reset( new Rgb24Image( 480, 360 ) );
 
 	// アプリケーション本体が動くスレッドの優先度を上げる
 	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_HIGHEST );
