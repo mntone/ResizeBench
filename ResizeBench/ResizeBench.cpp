@@ -18,7 +18,7 @@ int      count;
 bool     initialized;
 
 // アプリケーション本体
-Bench *bench;
+CBench *bench;
 
 // このコード モジュールに含まれる関数の宣言を転送します:
 ATOM				MyRegisterClass( HINSTANCE hInstance );
@@ -151,14 +151,14 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 	switch( message )
 	{
 	case WM_CREATE:
-		bench = new Bench( hWnd );
+		bench = new CBench( hWnd );
 		break;
 
 	case WM_COMMAND:
-		wmId    = LOWORD(wParam);
-		wmEvent = HIWORD(wParam);
+		wmId    = LOWORD( wParam );
+		wmEvent = HIWORD( wParam );
 		// 選択されたメニューの解析:
-		switch (wmId)
+		switch( wmId )
 		{
 		case ID_BENCH_BEGIN:
 			hdc = GetDC( hWnd );

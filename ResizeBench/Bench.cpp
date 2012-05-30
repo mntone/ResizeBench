@@ -2,16 +2,16 @@
 #include "Bench.h"
 
 
-Bench::Bench( HWND hWnd ):
+CBench::CBench( HWND hWnd ):
 	hWnd_( hWnd )
 {
 	// HDC 取得
 	hdc_ = GetDC( hWnd_ );
 
 	// サンプル画像用意
-	i1_.reset( new Rgb24Image( 640, 480 ) );
-	i2_.reset( new Rgb24Image( 480, 360 ) );
-	i3_.reset( new Rgb24Image( 480, 360 ) );
+	i1c_.reset( new CHdcImage( 800, 600 ) );
+	i1r_.reset( new CProcessingImage( 480, 360 ) );
+	buf.reset( new CHdcImage( 480, 360 ) );
 
 	// アプリケーション本体が動くスレッドの優先度を上げる
 	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_HIGHEST );
@@ -21,7 +21,7 @@ Bench::Bench( HWND hWnd ):
 }
 
 
-Bench::~Bench( void )
+CBench::~CBench( void )
 {
 	// デスクトップの HDC 解放
 	ReleaseDC( 0, deskhdc_ );
@@ -33,35 +33,38 @@ Bench::~Bench( void )
 	hWnd_ = NULL;
 }
 
-void Bench::Test( void )
+void CBench::Test( void )
 {
-	BitBlt( i1_->GetImageDC(), 0, 0, 640, 480, deskhdc_, 0, 0, SRCCOPY );
+	BitBlt( i1c_->GetImageDC(), 0, 0, 800, 600, deskhdc_, 0, 0, SRCCOPY );
 
-	i2_->NearestNeighbor( i1_.get() );
+	i1r_->NearestNeighbor( i1c_.get() );
+	buf->Copy( i1r_.get() );
 
-	BitBlt( hdc_, 0, 20, 480, 360, i2_->GetImageDC(), 0, 0, SRCCOPY );
+	BitBlt( hdc_, 0, 20, 480, 360, buf->GetImageDC(), 0, 0, SRCCOPY );
 
 	return;
 }
 
-void Bench::Test2( void )
+void CBench::Test2( void )
 {
-	BitBlt( i1_->GetImageDC(), 0, 0, 640, 480, deskhdc_, 0, 0, SRCCOPY );
-	
-	i2_->Bilinear( i1_.get() );
+	BitBlt( i1c_->GetImageDC(), 0, 0, 800, 600, deskhdc_, 0, 0, SRCCOPY );
 
-	BitBlt( hdc_, 360, 20, 480, 360, i2_->GetImageDC(), 0, 0, SRCCOPY );
+	i1r_->Bilinear( i1c_.get() );
+	buf->Copy( i1r_.get() );
+
+	BitBlt( hdc_, 360, 20, 480, 360, buf->GetImageDC(), 0, 0, SRCCOPY );
 
 	return;
 }
 
-void Bench::Test3( void )
+void CBench::Test3( void )
 {
-	BitBlt( i1_->GetImageDC(), 0, 0, 640, 480, deskhdc_, 0, 0, SRCCOPY );
+	BitBlt( i1c_->GetImageDC(), 0, 0, 800, 600, deskhdc_, 0, 0, SRCCOPY );
 
-	i2_->Bicubic( i1_.get() );
+	i1r_->Bicubic( i1c_.get() );
+	buf->Copy( i1r_.get() );
 
-	BitBlt( hdc_, 720, 20, 480, 360, i2_->GetImageDC(), 0, 0, SRCCOPY );
+	BitBlt( hdc_, 720, 20, 480, 360, buf->GetImageDC(), 0, 0, SRCCOPY );
 
 	return;
 }

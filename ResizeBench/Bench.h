@@ -1,21 +1,28 @@
 #pragma once
 
 #include "stdafx.h"
+#include "Rgb24/ProcessingImage.h"
+#include "Rgb24/HdcImage.h"
 
-class Bench
+#ifndef _CBench
+#define _CBench
+
+class CBench
 {
 protected:
 	HWND hWnd_;
 	HDC  hdc_, deskhdc_;
 	
-	std::unique_ptr<Rgb24Image> i1_, i2_, i3_;
+	std::unique_ptr<CHdcImage> i1c_, buf;
+	std::unique_ptr<CProcessingImage> i1r_;
 
 public:
-	Bench( HWND hWnd );
-	~Bench( void );
+	CBench( HWND hWnd );
+	~CBench( void );
 
 	void Test( void );
 	void Test2( void );
 	void Test3( void );
 };
 
+#endif

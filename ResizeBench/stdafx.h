@@ -23,5 +23,4 @@
 
 #include <MMSystem.h>
 
-#include "Rgb24Image.h"
 #include "Bench.h"

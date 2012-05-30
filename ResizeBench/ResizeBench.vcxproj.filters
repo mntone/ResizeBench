@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Rgb24">
+      <UniqueIdentifier>{3fa3e0b9-57c2-48b3-86d3-d9e95d09fa34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Rgb24">
+      <UniqueIdentifier>{7b2b9824-7936-40db-9065-9f14d327442a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -39,8 +45,17 @@
     <ClInclude Include="Bench.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Rgb24Image.h">
-      <Filter>ヘッダー ファイル</Filter>
+    <ClInclude Include="Rgb24\Image.h">
+      <Filter>ヘッダー ファイル\Rgb24</Filter>
+    </ClInclude>
+    <ClInclude Include="Rgb24\RawImage.h">
+      <Filter>ヘッダー ファイル\Rgb24</Filter>
+    </ClInclude>
+    <ClInclude Include="Rgb24\ProcessingImage.h">
+      <Filter>ヘッダー ファイル\Rgb24</Filter>
+    </ClInclude>
+    <ClInclude Include="Rgb24\HdcImage.h">
+      <Filter>ヘッダー ファイル\Rgb24</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -53,8 +68,17 @@
     <ClCompile Include="Bench.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Rgb24Image.cpp">
-      <Filter>ソース ファイル</Filter>
+    <ClCompile Include="Rgb24\RawImage.cpp">
+      <Filter>ソース ファイル\Rgb24</Filter>
+    </ClCompile>
+    <ClCompile Include="Rgb24\ProcessingImage.cpp">
+      <Filter>ソース ファイル\Rgb24</Filter>
+    </ClCompile>
+    <ClCompile Include="Rgb24\HdcImage.cpp">
+      <Filter>ソース ファイル\Rgb24</Filter>
+    </ClCompile>
+    <ClCompile Include="Rgb24\Image.cpp">
+      <Filter>ソース ファイル\Rgb24</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
