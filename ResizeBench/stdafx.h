@@ -19,8 +19,13 @@
 // C++ ランタイム ヘッダー ファイル
 #include <memory>
 
-// TODO: プログラムに必要な追加ヘッダーをここで参照してください。
+// D2D
+#include <d2d1.h>
+#include <d2d1helper.h>
+#include <dwrite.h>
+#include <wincodec.h>
 
+// TODO: プログラムに必要な追加ヘッダーをここで参照してください。
 #include <MMSystem.h>
 
 #include "Bench.h"

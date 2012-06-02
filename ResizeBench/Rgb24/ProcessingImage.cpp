@@ -2,13 +2,20 @@
 
 
 CProcessingImage::CProcessingImage( int width, int height ):
-	CRawImage( width, height )
+	width_( width ),
+	height_( height ),
+	lpPixel_( new BYTE[3 * width_ * height_]() )
 {
 }
 
 
 CProcessingImage::~CProcessingImage( void )
 {
+	if( lpPixel_ != NULL )
+	{
+		delete[] lpPixel_;
+		lpPixel_ = NULL;
+	}
 }
 
 // ----------- ˆÈ‰ºA‰æ‘œˆ—ŠÖ”ŒQ ------------

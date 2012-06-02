@@ -84,7 +84,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d2d1.lib;WindowsCodecs.lib;dwrite.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -117,7 +117,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d2d1.lib;WindowsCodecs.lib;dwrite.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -148,8 +148,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bench.h" />
+    <ClInclude Include="D2dImage.h" />
     <ClInclude Include="ResizeBench.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Rgb24\D2dImage.h" />
     <ClInclude Include="Rgb24\HdcImage.h" />
     <ClInclude Include="Rgb24\Image.h" />
     <ClInclude Include="Rgb24\ProcessingImage.h" />
@@ -160,6 +162,7 @@
   <ItemGroup>
     <ClCompile Include="Bench.cpp" />
     <ClCompile Include="ResizeBench.cpp" />
+    <ClCompile Include="Rgb24\D2dImage.cpp" />
     <ClCompile Include="Rgb24\HdcImage.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>

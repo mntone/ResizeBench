@@ -4,13 +4,10 @@
 #include "stdafx.h"
 #include "ResizeBench.h"
 
-#define MAX_LOADSTRING 100
-#define TARGET_RESOLUTION 1
+const int TARGET_RESOLUTION = 1;
 
 // グローバル変数:
 HINSTANCE hInst;								// 現在のインターフェイス
-TCHAR szTitle[MAX_LOADSTRING];					// タイトル バーのテキスト
-TCHAR szWindowClass[MAX_LOADSTRING];			// メイン ウィンドウ クラス名
 
 TIMECAPS tc;
 UINT     wTimerRes;
@@ -24,7 +21,6 @@ CBench *bench;
 ATOM				MyRegisterClass( HINSTANCE hInstance );
 BOOL				InitInstance( HINSTANCE, int );
 LRESULT CALLBACK	WndProc( HWND, UINT, WPARAM, LPARAM );
-INT_PTR CALLBACK	About( HWND, UINT, WPARAM, LPARAM );
 
 void SetTimer( HWND hWnd );
 HRESULT ClearTimer( void );
@@ -39,13 +35,14 @@ int APIENTRY _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpC
 	UNREFERENCED_PARAMETER( hPrevInstance );
 	UNREFERENCED_PARAMETER( lpCmdLine );
 
- 	// TODO: ここにコードを挿入してください。
+	// Direct2D の初期化
+	if( FAILED( CoInitialize( NULL ) ) )
+		return FALSE;
+
 	MSG msg;
 	HACCEL hAccelTable;
 
 	// グローバル文字列を初期化しています。
-	LoadString( hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING );
-	LoadString( hInstance, IDC_RESIZEBENCH, szWindowClass, MAX_LOADSTRING );
 	MyRegisterClass( hInstance );
 
 	// アプリケーションの初期化を実行します:
@@ -63,6 +60,9 @@ int APIENTRY _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpC
 			DispatchMessage( &msg );
 		}
 	}
+
+	// D2D の解放
+	CoUninitialize();
 
 	return static_cast<int>( msg.wParam );
 }
@@ -82,7 +82,7 @@ int APIENTRY _tWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpC
 //    正しい形式の小さいアイコンを取得できるようにするには、
 //    この関数を呼び出してください。
 //
-ATOM MyRegisterClass(HINSTANCE hInstance)
+ATOM MyRegisterClass( HINSTANCE hInstance )
 {
 	WNDCLASSEX wcex;
 
@@ -97,7 +97,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hCursor		= LoadCursor( NULL, IDC_ARROW);
 	wcex.hbrBackground	= reinterpret_cast<HBRUSH>( COLOR_WINDOW + 1 );
 	wcex.lpszMenuName	= MAKEINTRESOURCE( IDC_RESIZEBENCH );
-	wcex.lpszClassName	= szWindowClass;
+	wcex.lpszClassName	= L"ResizeBench";
 	wcex.hIconSm		= LoadIcon( wcex.hInstance, MAKEINTRESOURCE( IDI_SMALL ) );
 
 	return RegisterClassEx( &wcex );
@@ -119,14 +119,14 @@ BOOL InitInstance( HINSTANCE hInstance, int nCmdShow )
 
 	hInst = hInstance; // グローバル変数にインスタンス処理を格納します。
 
-	hWnd = CreateWindow( szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+	hWnd = CreateWindow( L"ResizeBench", L"Resize Bench", WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, 3*360+20, 60+360+20, NULL, NULL, hInstance, NULL );
 
 	if( !hWnd )
 		return FALSE;
 
-	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd);
+	ShowWindow( hWnd, nCmdShow );
+	UpdateWindow( hWnd );
 	
 	return TRUE;
 }
@@ -144,7 +144,6 @@ BOOL InitInstance( HINSTANCE hInstance, int nCmdShow )
 LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	int wmId, wmEvent;
-	PAINTSTRUCT ps;
 	HDC hdc;
 	int a, b, c;
 
@@ -200,25 +199,14 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 			TextOut( hdc, 720 + 280, 0, str, wcslen( str ) );
 			ReleaseDC( hWnd, hdc );
 			break;
-		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-			break;
-		case IDM_EXIT:
-			DestroyWindow(hWnd);
-			break;
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		}
-		break;
-	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		// TODO: 描画コードをここに追加してください...
-		EndPaint(hWnd, &ps);
-		break;
 
-	case WM_CLOSE:
-		ClearTimer();
-		DestroyWindow( hWnd );
+		case IDM_EXIT:
+			DestroyWindow( hWnd );
+			break;
+
+		default:
+			return DefWindowProc( hWnd, message, wParam, lParam );
+		}
 		break;
 
 	case WM_DESTROY:
@@ -230,26 +218,6 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam 
 		return DefWindowProc( hWnd, message, wParam, lParam );
 	}
 	return 0;
-}
-
-// バージョン情報ボックスのメッセージ ハンドラーです。
-INT_PTR CALLBACK About( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam )
-{
-	UNREFERENCED_PARAMETER( lParam );
-	switch( message )
-	{
-	case WM_INITDIALOG:
-		return static_cast<INT_PTR>( TRUE );
-
-	case WM_COMMAND:
-		if( LOWORD( wParam ) == IDOK || LOWORD( wParam ) == IDCANCEL )
-		{
-			EndDialog( hDlg, LOWORD( wParam ) );
-			return static_cast<INT_PTR>( TRUE );
-		}
-		break;
-	}
-	return static_cast<INT_PTR>( FALSE );
 }
 
 

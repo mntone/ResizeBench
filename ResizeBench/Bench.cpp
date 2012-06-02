@@ -9,9 +9,9 @@ CBench::CBench( HWND hWnd ):
 	hdc_ = GetDC( hWnd_ );
 
 	// サンプル画像用意
-	i1c_.reset( new CHdcImage( 800, 600 ) );
+	i1c_.reset( new CD2dImage( 800, 600 ) );
 	i1r_.reset( new CProcessingImage( 480, 360 ) );
-	buf.reset( new CHdcImage( 480, 360 ) );
+	buf.reset( new CD2dImage( 480, 360 ) );
 
 	// アプリケーション本体が動くスレッドの優先度を上げる
 	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_HIGHEST );
@@ -39,6 +39,7 @@ void CBench::Test( void )
 
 	i1r_->NearestNeighbor( i1c_.get() );
 	buf->Copy( i1r_.get() );
+	buf->DrawText( L"てすとおおおお" );
 
 	BitBlt( hdc_, 0, 20, 480, 360, buf->GetImageDC(), 0, 0, SRCCOPY );
 
@@ -51,6 +52,7 @@ void CBench::Test2( void )
 
 	i1r_->Bilinear( i1c_.get() );
 	buf->Copy( i1r_.get() );
+	buf->DrawText( L"てすとおおおお" );
 
 	BitBlt( hdc_, 360, 20, 480, 360, buf->GetImageDC(), 0, 0, SRCCOPY );
 
@@ -63,6 +65,7 @@ void CBench::Test3( void )
 
 	i1r_->Bicubic( i1c_.get() );
 	buf->Copy( i1r_.get() );
+	buf->DrawText( L"てすとおおおお" );
 
 	BitBlt( hdc_, 720, 20, 480, 360, buf->GetImageDC(), 0, 0, SRCCOPY );
 

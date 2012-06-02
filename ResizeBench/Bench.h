@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include "Rgb24/ProcessingImage.h"
 #include "Rgb24/HdcImage.h"
+#include "Rgb24/D2dImage.h"
 
 #ifndef _CBench
 #define _CBench
@@ -13,7 +14,7 @@ protected:
 	HWND hWnd_;
 	HDC  hdc_, deskhdc_;
 	
-	std::unique_ptr<CHdcImage> i1c_, buf;
+	std::unique_ptr<CD2dImage> i1c_, buf;
 	std::unique_ptr<CProcessingImage> i1r_;
 
 public:

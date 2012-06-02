@@ -1,16 +1,25 @@
 #pragma once
 
-#include "RawImage.h"
+#include "Image.h"
 
 #ifndef _CProcessingImage
 #define _CProcessingImage
 
 class CProcessingImage:
-	public CRawImage
+	public IImage
 {
+protected:
+	const int width_;
+	const int height_;
+	LPBYTE lpPixel_;
+
 public:
 	CProcessingImage( int, int );
 	~CProcessingImage( void );
+	
+	virtual const int& GetWidth( void ) const{ return width_; };
+	virtual const int& GetHeight( void ) const{ return height_; };
+	virtual const LPBYTE& GetPixel( void ) const{ return lpPixel_; };
 
 	bool Copy( IImage * );
 	bool Trim( RECT rect, IImage * );
