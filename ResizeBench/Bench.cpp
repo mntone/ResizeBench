@@ -39,6 +39,7 @@ void CBench::Test( void )
 
 	i1r_->NearestNeighbor( i1c_.get() );
 	buf->Copy( i1r_.get() );
+	buf->SetColor( 0xff0000 );
 	buf->DrawText( L"‚Ä‚·‚Æ‚¨‚¨‚¨‚¨" );
 
 	BitBlt( hdc_, 0, 20, 480, 360, buf->GetImageDC(), 0, 0, SRCCOPY );
@@ -52,6 +53,7 @@ void CBench::Test2( void )
 
 	i1r_->Bilinear( i1c_.get() );
 	buf->Copy( i1r_.get() );
+	buf->SetColor( 0xff0000 );
 	buf->DrawText( L"‚Ä‚·‚Æ‚¨‚¨‚¨‚¨" );
 
 	BitBlt( hdc_, 360, 20, 480, 360, buf->GetImageDC(), 0, 0, SRCCOPY );
@@ -65,6 +67,7 @@ void CBench::Test3( void )
 
 	i1r_->Bicubic( i1c_.get() );
 	buf->Copy( i1r_.get() );
+	buf->SetColor( 0xff0000 );
 	buf->DrawText( L"‚Ä‚·‚Æ‚¨‚¨‚¨‚¨" );
 
 	BitBlt( hdc_, 720, 20, 480, 360, buf->GetImageDC(), 0, 0, SRCCOPY );
